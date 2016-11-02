@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
      * gai_strerror() return a printable version of the error code.
      * If it is successful, store all the result in serviceinfo. */
     if((infovalue = getaddrinfo(argv[1], SERVERPORT, &hints, &serviceinfo)) != 0){
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(infovalue));
+        fprintf(stderr, "Client getaddrinfo(): %s\n", gai_strerror(infovalue));
         return 1;
     }
 
