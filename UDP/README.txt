@@ -6,7 +6,7 @@ README file on how to use Client.cpp and Server.cpp
     and are currently in the directory of the files)
 
     Client:
-        client [ip] [port] [message]
+        ./client [ip] [port] [message]
 
         [ip]: can be any ipv4, ipv6, service name or website.
               (127.0.0.1, ::1, chrome, www.google.com, etc.)
@@ -17,7 +17,7 @@ README file on how to use Client.cpp and Server.cpp
                    ("Hello World!")
 
     Server:
-        server [port]
+        ./server [port]
 
         [port]: port number between 1025-65535 and not currently in use.
 
