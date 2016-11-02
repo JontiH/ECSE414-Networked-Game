@@ -17,8 +17,6 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#define LOCALPORT "4950" //Must be the same as SERVERPORT inside CLient.cpp
-
 #define BUFFERLEN 1000
 
 /* *get_in_addr() is used to return the appriopriate value if the ip of the client is ipv4 or ipv6 */
@@ -30,7 +28,7 @@ void *get_in_addr(sockaddr *sa){
     return &(((sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main(void){
+int main(int argc, char *argv[]){
 
     int socketdesc;
     addrinfo hints, *serviceinfo, *i; //addrinfo is a struct that contains all the info for a connection.
@@ -41,13 +39,14 @@ int main(void){
     /* ip is set to length INET6_ADDRSTRLEN since it may contain either ipv4 or ipv6 */
     char ip[INET6_ADDRSTRLEN];
     char msg[BUFFERLEN];
+    char* localport = argv[1];
 
     memset(&hints, 0, sizeof hints); //must clear info from previous calls.
     hints.ai_family = AF_UNSPEC; //set ip to unspecified so it will allow us to use both ipv4 and ipv6
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE; //this tells getaddrinfo() to assign the address of localhost to the socket structure.
 
-    if ((infovalue = getaddrinfo(NULL, LOCALPORT, &hints, &serviceinfo)) != 0) {
+    if ((infovalue = getaddrinfo(NULL, localport, &hints, &serviceinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(infovalue));
         return 1;
     }

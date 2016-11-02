@@ -16,16 +16,15 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#define SERVERPORT "4950" //the port must be the same on both Server.cpp and Client.cpp
-
 int main(int argc, char *argv[]){
 
     int socketdesc;
-    addrinfo hints, *serviceinfo, *i; //addrinfo is a struct that contains all the info for a connection.
+    addrinfo hints, *serviceinfo, *i; //addrinfo is a struct that will contain all the info for a connection.
     int infovalue;
     int msg;
+    char* serverport = argv[2];
 
-    if(argc != 3){
+    if(argc != 4){
         fprintf(stderr,"Client: Missing arguments\n");
         exit(1);
     }
@@ -37,7 +36,7 @@ int main(int argc, char *argv[]){
     /* getaddrinfo returns 0 on success, catch all errors when getting host info here (if any).
      * gai_strerror() return a printable version of the error code.
      * If it is successful, store all the result in serviceinfo. */
-    if((infovalue = getaddrinfo(argv[1], SERVERPORT, &hints, &serviceinfo)) != 0){
+    if((infovalue = getaddrinfo(argv[1], serverport, &hints, &serviceinfo)) != 0){
         fprintf(stderr, "Client getaddrinfo(): %s\n", gai_strerror(infovalue));
         return 1;
     }
@@ -62,14 +61,14 @@ int main(int argc, char *argv[]){
     /* sendto() returns the number of bytes sent, might be less then what you asked it to send.
      * Also return -1 on error and sets errno to the error's value. 
      * We use perror to print the most recent errno. */
-    if((msg = sendto(socketdesc, argv[2], strlen(argv[2]), 0, i->ai_addr, i->ai_addrlen)) == -1){
+    if((msg = sendto(socketdesc, argv[3], strlen(argv[3]), 0, i->ai_addr, i->ai_addrlen)) == -1){
         perror("Client: sendto");
         exit(1);
     }
     
     freeaddrinfo(serviceinfo);
 
-    printf("Client: sent %d bytes to %s\n", msg, argv[1]);
+    printf("Client: sent %d byte(s) to %s/%s\n", msg, argv[1], argv[2]);
     close(socketdesc);
     return 0;
 }
