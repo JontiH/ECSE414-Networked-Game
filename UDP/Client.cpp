@@ -1,3 +1,9 @@
+/*
+ * Client.cpp is used to send simple message to a specific ip address via UPD packets.
+ * Useful for testing UDP connections.
+ * Built using Beej's guide to Network programming. 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,7 +20,7 @@
 int main(int argc, char *argv[]){
 
     int socketdesc;
-    struct addrinfo hints, *serviceinfo, *i;
+    addrinfo hints, *serviceinfo, *i; //addrinfo is a struct that contains all the info for a connection.
     int infovalue;
     int msg;
 
@@ -35,7 +41,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    /* loop through all the result of getaddrinfo stored in serviceinfo until it is successful.
+    /* loop through all the result in serviceinfo until it is successful.
      * socket() return -1 on error and set errno to the error's value.
      * So we use perror to print the most recent errno. 
      * The first time it is successful, it creates a socket and store the file descriptor in socketdesc. */
