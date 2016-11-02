@@ -1,6 +1,7 @@
 /*
  * Client.cpp is used to send simple message to a specific ip address via UPD packets.
  * Useful for testing UDP connections.
+ * Port number is hardcoded below.
  * Built using Beej's guide to Network programming. 
  */
 
@@ -41,9 +42,9 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    /* loop through all the result in serviceinfo until it is successful.
+    /* Loop through all the result in serviceinfo until it is successful.
      * socket() return -1 on error and set errno to the error's value.
-     * So we use perror to print the most recent errno. 
+     * We use perror to print the most recent errno. 
      * The first time it is successful, it creates a socket and store the file descriptor in socketdesc. */
     for(i = serviceinfo; i != NULL; i = i->ai_next){
         if((socketdesc = socket(i->ai_family, i->ai_socktype, i->ai_protocol)) == -1){
