@@ -23,15 +23,15 @@
 
 #include "AnimatedSprite.hpp"
 
-AnimatedSprite::AnimatedSprite(sf::Time frameTime) :
-	m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), xPos(0),yPos(0)
+AnimatedSprite::AnimatedSprite(sf::Time frameTime, int team ) :
+	m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), xPos(0), yPos(0), team(team)
 {
 
 }
 
 void AnimatedSprite::setAnimation(const Animation& animation, bool hasChanged)
 {
-	//printf("has it changed POST?  %i\n", hasChanged);
+	printf("has it changed POST?  %i\n", hasChanged);
 	m_animation = &animation;
 	
 	if (hasChanged)
@@ -95,6 +95,25 @@ float AnimatedSprite::getPosY() {
 float AnimatedSprite::getPosX() {
 	return xPos;
 }
+void AnimatedSprite::setTeam(int b) {
+	team = b;
+}
+int  AnimatedSprite::getTeam() {
+	return team;
+}
+bool AnimatedSprite::getIsJumping() {
+	return isJumping;
+}
+bool AnimatedSprite::getIsOnGround() {
+	return isOnGround;
+}
+void AnimatedSprite::setIsOnGround(bool g) {
+	isOnGround = g;
+}
+void AnimatedSprite::setIsJumping(bool j) {
+	isJumping = j;
+}
+
 
 void AnimatedSprite::update(sf::Time deltaTime) 
 {

@@ -35,7 +35,7 @@
 class AnimatedSprite : public sf::Drawable, public sf::Transformable
 {
 public:
-	explicit AnimatedSprite(sf::Time frameTime = sf::seconds(0.2f));
+	explicit AnimatedSprite(sf::Time frameTime = sf::seconds(0.2f),int left = 1);
 
 	void update(sf::Time deltaTime);
 	void setAnimation(const Animation& animation, bool hasChanged);
@@ -51,6 +51,12 @@ public:
 	void changePos(float x, float y);
 	float getPosY();
 	float getPosX();
+	int getTeam();
+	bool getIsJumping();
+	bool getIsOnGround();
+	void setTeam(int b);
+	void setIsJumping(bool j);
+	void setIsOnGround(bool g);
 private:
 	const Animation * m_animation;
 	sf::Time m_frameTime;
@@ -61,6 +67,9 @@ private:
 	float yPos;
 	float xVelocity;
 	float yVelocity;
+	bool isJumping;
+	bool isOnGround;
+	int team;
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 };
