@@ -31,7 +31,7 @@ AnimatedSprite::AnimatedSprite(sf::Time frameTime, int team ) :
 
 void AnimatedSprite::setAnimation(const Animation& animation, bool hasChanged)
 {
-	printf("has it changed POST?  %i\n", hasChanged);
+//	printf("has it changed POST?  %i\n", hasChanged);
 	m_animation = &animation;
 	
 	if (hasChanged)

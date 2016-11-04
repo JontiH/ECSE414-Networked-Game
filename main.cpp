@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include "AnimatedSprite.hpp"
 #include <iostream>
-#include "main.h"
+
 
 enum State { walkLeft, walkRight, crouchLeft, crouchRight , idleLeft, idleRight, jumpLeft, jumpRight, chuckLeft, chuckRight , die };
 float FLOOR_HEIGHT = 100.0;
@@ -376,10 +376,10 @@ int main()
 	hammer.changePos(screenDimensions.x / 2 + 200, screenDimensions.y / 2);
 	hammer.setAnimation(hammerIdleRight, true);
 
-	State currentStatePlayer = State::idleRight;
+	State currentStatePlayer = idleRight;
 	State previousStatePlayer;
 
-	State currentStateHammer = State::idleRight;
+	State currentStateHammer = idleRight;
 	State previousStateHammer;
 
 	sf::Clock frameClock;

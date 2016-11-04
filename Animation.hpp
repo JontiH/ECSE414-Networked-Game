@@ -13,7 +13,7 @@ public:
 	Animation(bool l, std::string n);
 
 	void addFrame(sf::Sprite sp);
-	bool Animation::getIsLooped() const;
+	bool getIsLooped() const;
 	std::size_t getSize() const;
 	std::string getName() const;
 	const sf::Sprite getFrame(std::size_t n) const;
