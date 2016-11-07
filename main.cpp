@@ -1,6 +1,4 @@
-#include <SFML/Graphics.hpp>
 #include <string>
-
 
 #include <SFML/Graphics.hpp>
 #include "AnimatedSprite.hpp"
