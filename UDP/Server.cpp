@@ -2,7 +2,6 @@
  * Server.cpp is used to receive simple message via UDP packets.
  * It then prints the sender's info and message.
  * Useful for testing UDP connections.
- * Port number is hardcoded below.
  * Built using Beej's guide to Network programming.
  * */
 

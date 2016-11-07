@@ -1,7 +1,6 @@
 /*
  * Client.cpp is used to send simple message to a specific ip address via UPD packets.
  * Useful for testing UDP connections.
- * Port number is hardcoded below.
  * Built using Beej's guide to Network programming. 
  */
 
