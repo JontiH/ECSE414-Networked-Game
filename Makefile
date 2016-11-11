@@ -29,5 +29,5 @@ main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
 
 clean:
-	rm -f game *.o *~
+	rm -f game *.o *~ *.gch
 
