@@ -3,12 +3,14 @@
 #include <SFML/Graphics.hpp>
 #include "AnimatedSprite.hpp"
 #include <iostream>
+#include <math.h>  
 
 
 enum State { walkLeft, walkRight, crouchLeft, crouchRight , idleLeft, idleRight, jumpLeft, jumpRight, chuckLeft, chuckRight , die };
 float FLOOR_HEIGHT = 100.0;
-sf::Texture texture;
 
+#define PI 3.14159265
+sf::Texture texture;
 
 Animation idleAnimationLeft(false,"idleLeft");
 Animation crouchingAnimationLeft(false,"crouchLeft");
@@ -31,37 +33,54 @@ float stopFactor = 0.10 ;
 float gravity = 9.8;
 float jumpSpeed = 500;
 
+int carryList[1] = { 0 };
+int chuckList[2] = { 0 };
+int teamList[1] = { 0 };
+
+std::pair<float, float> p1V, p2V;
+
 
 sf::Vector2i screenDimensions(800, 600);
 sf::RectangleShape floorBox(sf::Vector2f(screenDimensions.x, FLOOR_HEIGHT));
 sf::RectangleShape halfLine(sf::Vector2f(10, FLOOR_HEIGHT));
 
 
-State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event event, sf::Time frameTime)  {
+State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event event)  {
 
 	bool noKeyWasPressed = true;
 	State currentState = previousState;
 	// if a key was pressed set the correct animation and move correctly
 
 	
-	if (sprite.getTeam() == 0) {
-
-		return currentState;
-
-		/*
-		if (sprite.getVelocityX > 0) {
-			if (sprite.getIsOnGround()) {
-
-			}
-		}
-		*/
-	}
-	
 	if (currentState == die) {
 		return currentState;
 	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	{
+		
+		if (previousState == chuckLeft || previousState == chuckRight) {
+			chuckList[sprite.getTeam() - 1] = 0;
+			currentState = previousState;
+		}
+		else {
+			
+			if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight) ) {
+				
+				currentState = chuckRight;
+				
+				chuckList[sprite.getTeam() - 1] = 2;
+			}
+			else {
+				
+				currentState = chuckLeft;
+				chuckList[sprite.getTeam() - 1] = 1;
+			}
+		}
+		
+		noKeyWasPressed = false;
+	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 	{
 
 		if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
@@ -100,7 +119,7 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
-		if ((currentState == idleRight) || (currentState == walkRight) || (currentState = crouchRight) || (currentState == idleRight) ||(currentState == jumpRight)) {
+		if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) ||(currentState == jumpRight)) {
 			currentState = jumpRight;
 		}
 		else
@@ -108,8 +127,7 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 		noKeyWasPressed = false;
 		
 	}
-
-
+	
 	// if no key was pressed stop the animation
 	else if (noKeyWasPressed)
 	{
@@ -125,10 +143,12 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 	
 	return currentState;
 }
-Animation getCurrentAnimation(AnimatedSprite sprite, State current, State previous) {
-	Animation* tmp(NULL);
+const Animation* getCurrentAnimation(AnimatedSprite sprite,bool isHammer) {
+	const Animation* tmp(NULL);
 
-	if (sprite.getTeam() == 0) {
+	State current = static_cast<State>(sprite.getCurrState());
+
+	if (isHammer) {
 		tmp = &hammerIdleRight;
 	}
 	else {
@@ -148,11 +168,12 @@ Animation getCurrentAnimation(AnimatedSprite sprite, State current, State previo
 			tmp = &crouchingAnimationLeft;
 		}
 		else
-			tmp = &crouchingAnimationRight;
+			tmp = &crouchingAnimationLeft;
 	}
-	return *tmp;
+	return tmp;
 
 }
+
 void setupAnimations() {
 	s = sf::Sprite(texture, sf::IntRect(231 + 18, 62, -18, 32));
 	s.scale(scalingFactor, scalingFactor);
@@ -213,6 +234,7 @@ void setupAnimations() {
 	s = sf::Sprite(texture, sf::IntRect(13, 59, 18, 32));
 	s.scale(scalingFactor, scalingFactor);
 	idleAnimationRight.addFrame(s);
+	
 
 	s = sf::Sprite(texture, sf::IntRect(331, 343, 17, 18));
 	s.scale(scalingFactor, scalingFactor);
@@ -239,12 +261,12 @@ void setupAnimations() {
 	s.scale(scalingFactor, scalingFactor);
 	hammerIdleRight.addFrame(s);
 }
-std::pair<float, float> updateSim(State current, AnimatedSprite sprite, sf::Time frameTime) {
+std::pair<float, float> updatePlayer(AnimatedSprite  sprite, sf::Time frameTime) {
 
 	float fr = frameTime.asSeconds();
 	float x = sprite.getVelocityX() / fr;
 	float y = sprite.getVelocityY() / fr;
-
+	State current = static_cast<State>(sprite.getCurrState());
 	
 
 	if (current == walkRight) {
@@ -269,7 +291,7 @@ std::pair<float, float> updateSim(State current, AnimatedSprite sprite, sf::Time
 		}
 	}
 	else if (current == idleLeft || current == idleRight) {
-		x = 0;
+x = 0;
 	}
 	y += gravity;
 	if (sprite.getGlobalBounds().intersects(floorBox.getGlobalBounds())) {
@@ -285,20 +307,24 @@ std::pair<float, float> updateSim(State current, AnimatedSprite sprite, sf::Time
 	if (current == jumpLeft || current == jumpRight) {
 
 		if (!sprite.getIsJumping() && sprite.getIsOnGround() && abs(y) < 1) {
-			printf("LOL\n");
 			y = -jumpSpeed;
 			sprite.setIsJumping(true);
-			
+
 		}
 
 
 	}
+
+
 	float spriteLeft = sprite.getGlobalBounds().left;
 	float spriteRight = sprite.getGlobalBounds().width + spriteLeft;
 
 	float lineLeft = halfLine.getGlobalBounds().left;
 	float lineRight = halfLine.getGlobalBounds().width + lineLeft;
 	if (sprite.getTeam() == 1) {
+
+
+
 		if (spriteLeft < 1) {
 			if (current == walkLeft || current == jumpLeft || current == crouchLeft || current == idleLeft) {
 				x = 0;
@@ -324,23 +350,105 @@ std::pair<float, float> updateSim(State current, AnimatedSprite sprite, sf::Time
 		}
 	}
 
-	else {
+	return std::pair<float, float>(x*fr, y*fr);
+}
+void checkCollision(AnimatedSprite player, AnimatedSprite hammer) {
 
-		if (spriteRight > screenDimensions.x - 1) {
-			x = -x;
+
+	if (hammer.getGlobalBounds().intersects(player.getGlobalBounds())) {
+
+		if (hammer.getTeam() == 0) {
+
+			teamList[0] =player.getTeam();
+			carryList[0] = 1;
+
+
 		}
-		if (spriteLeft < 1) {
-			x = -x;
+		else if (hammer.getTeam() != player.getTeam()) {
+			//die
+		}
+	}
+}
+
+
+std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime) {
+
+	float fr = frameTime.asSeconds();
+	float x = sprite.getVelocityX() / fr;
+	float y = sprite.getVelocityY() / fr;
+
+	float throwingVelocity = 500;
+	float angle = -45;
+	std::pair<float, float> outputPair;
+
+	State current = static_cast<State>(sprite.getCurrState());
+
+	y += gravity;
+	
+	 if (carryList[0] == 1) {
+
+		if (chuckList[sprite.getTeam() - 1] > 0) {
+
+			carryList[0] = 0;
+			y = throwingVelocity*sin(angle*PI / 180);
+			x = throwingVelocity*cos(angle*PI / 180);
+			//printf("%i", chuckList[sprite.getTeam() - 1]);
+
+			if (chuckList[sprite.getTeam() - 1] == 1)
+				
+				x = -x;
+
+		}
+		else {
+			if (sprite.getTeam() == 1){
+				x = p1V.first / fr;
+				y = p1V.second / fr;
+			}
+			else {
+				x = p2V.first / fr;
+				y = p2V.second / fr;
+			
+			}
+			
+			//printf("x = %f, y = %f ", x, y);
+		}
+	}
+
+		
+
+	float spriteLeft = sprite.getGlobalBounds().left;
+	float spriteRight = sprite.getGlobalBounds().width + spriteLeft;
+
+	
+	if (spriteRight > screenDimensions.x - 1) {
+		x = -x;
+	}
+	if (spriteLeft < 1) {
+		x = -x;
+	}
+	if (sprite.getGlobalBounds().intersects(floorBox.getGlobalBounds())) {
+		if (y > 0) {
+			y = 0;
 		}
 		
+		if (carryList[0] == 0) {
+			
+			if (y == 0) {
+				x = 0;
+				teamList[0] = 0;
+			}
+			
+		}
+
 	}
-	
-	
-	//printf("HERE YOU GO %i \n\n", isOnGround);
-	//printf("here is x -> %f, here is y -> %f \n\n,", sprite.getPosX(), sprite.getPosY());
-	
-	return std::pair<float,float>(x*fr, y*fr);
+
+
+	outputPair.first = x*fr;
+	outputPair.second = y*fr;
+	return outputPair;
+
 }
+
 int main()
 { 
 	
@@ -365,28 +473,22 @@ int main()
 	setupAnimations();
 
 	// set up AnimatedSprite
-	AnimatedSprite animatedSprite(sf::seconds(1/15.f),1);
-	animatedSprite.changePos(screenDimensions.x/2, screenDimensions.y/2);
-	animatedSprite.setAnimation(idleAnimationRight,true);
+	AnimatedSprite player1(sf::seconds(1/25.f),1);
+	player1.changePos(screenDimensions.x/2 -200, screenDimensions.y/2);
 
+	AnimatedSprite player2(sf::seconds(1 / 25.f), 2);
+	player2.changePos(screenDimensions.x / 2 + 200, screenDimensions.y / 2);
 
-	AnimatedSprite hammer(sf::seconds(1 / 15.f), 0);
-	hammer.changePos(screenDimensions.x / 2 + 200, screenDimensions.y / 2);
-	hammer.setAnimation(hammerIdleRight, true);
-
-	State currentStatePlayer = idleRight;
-	State previousStatePlayer;
-
-	State currentStateHammer = idleRight;
-	State previousStateHammer;
+	AnimatedSprite hammer1(sf::seconds(1 / 25.f), 0);
+	hammer1.changePos(screenDimensions.x / 2 - 150, screenDimensions.y / 2);
 
 	sf::Clock frameClock;
 	
 
 	while (window.isOpen())
 	{
-		
 		sf::Event event;
+		std::pair<float, float> newVelocity;
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
@@ -396,46 +498,51 @@ int main()
 		}
 
 		sf::Time frameTime = frameClock.restart();
-		previousStatePlayer = currentStatePlayer;
-		currentStatePlayer = getCurrentState(animatedSprite, previousStatePlayer, event, frameTime);
+		
+		player1.setAnimation(getCurrentAnimation(player1,false));
+		
+		player1.setState(getCurrentState(player1, static_cast<State>(player1.getCurrState()), event));
+		player1.update(frameTime);
+		newVelocity = updatePlayer(player1, frameTime);
+		player1.setVelocity(newVelocity.first, newVelocity.second);
+		player1.movePosition();
+		p1V = newVelocity;
+
+		player2.setAnimation(getCurrentAnimation(player2,false));
+		player2.setState(getCurrentState(player2, static_cast<State>(player2.getCurrState()), event));
+		player2.update(frameTime);
+		newVelocity = updatePlayer(player2, frameTime);
+		player2.setVelocity(newVelocity.first, newVelocity.second);
+		player2.movePosition();
+		p2V = newVelocity;
 
 
-		bool hasChanged = (!(currentStatePlayer == previousStatePlayer));
-		Animation playerAnimation = getCurrentAnimation(animatedSprite, currentStatePlayer, previousStatePlayer);
+		
+		hammer1.setAnimation(getCurrentAnimation(hammer1,true));
+		hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
+		hammer1.update(frameTime);
+		newVelocity = updateHammer(hammer1, frameTime);
 
+		hammer1.setVelocity(newVelocity.first, newVelocity.second);
+		hammer1.movePosition();
 
+		checkCollision(player1,hammer1);
+		checkCollision(player2, hammer1);
 
-		animatedSprite.setAnimation(playerAnimation, hasChanged);
-		animatedSprite.update(frameTime);
-		std::pair<float, float> newVelocity = updateSim(currentStatePlayer, animatedSprite, frameTime);
-		animatedSprite.setVelocity(newVelocity.first, newVelocity.second);
-		animatedSprite.movePosition();
+		hammer1.setTeam(teamList[0]);
+		
+		//printf("%i", carryList[2]);
 
-
-
-		previousStateHammer = currentStateHammer;
-		currentStateHammer = getCurrentState(hammer, previousStateHammer, event, frameTime);
-
-		hasChanged = (!(currentStateHammer == previousStateHammer));
-		Animation hammerAnimation = getCurrentAnimation(hammer, currentStateHammer, previousStateHammer);
-
-
-
-		hammer.setAnimation(hammerAnimation, hasChanged);
-		hammer.update(frameTime);
-		newVelocity = updateSim(currentStateHammer, hammer, frameTime);
-		hammer.setVelocity(newVelocity.first, newVelocity.second);
-		hammer.movePosition();
-
-
+	
 
 		// draw
 		window.clear();
-		window.draw(animatedSprite);
-		window.draw(hammer);
+		window.draw(player1);
+		window.draw(player2);
+		window.draw(hammer1);
 		window.draw(floorBox);
 		window.draw(halfLine);
-
+		
 
 		window.display();
 	}

@@ -23,18 +23,19 @@
 
 #include "AnimatedSprite.hpp"
 
+
 AnimatedSprite::AnimatedSprite(sf::Time frameTime, int team ) :
-	m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), xPos(0), yPos(0), team(team)
+	m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), xPos(0), yPos(0), team(team), currState(5),prevState(NULL),changedState(true)
 {
 
 }
 
-void AnimatedSprite::setAnimation(const Animation& animation, bool hasChanged)
+void AnimatedSprite::setAnimation(const Animation* animation)
 {
 //	printf("has it changed POST?  %i\n", hasChanged);
-	m_animation = &animation;
+	m_animation = animation;
 	
-	if (hasChanged)
+	if (changedState)
 		m_currentFrame = 0;		
 
 }
@@ -107,11 +108,25 @@ bool AnimatedSprite::getIsJumping() {
 bool AnimatedSprite::getIsOnGround() {
 	return isOnGround;
 }
+int AnimatedSprite::getCurrState() {
+	return currState;
+}
+int AnimatedSprite::getPrevState() {
+	return prevState;
+}
 void AnimatedSprite::setIsOnGround(bool g) {
 	isOnGround = g;
 }
 void AnimatedSprite::setIsJumping(bool j) {
 	isJumping = j;
+}
+void AnimatedSprite::setState(int s) {
+	
+	changedState = (currState != s);
+	prevState = currState;
+	currState = s;
+	
+	
 }
 
 
