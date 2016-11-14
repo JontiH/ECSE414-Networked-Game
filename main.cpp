@@ -1,4 +1,6 @@
+#include <SFML/Graphics.hpp>
 #include <string>
+
 
 #include <SFML/Graphics.hpp>
 #include "AnimatedSprite.hpp"
@@ -11,6 +13,7 @@ float FLOOR_HEIGHT = 100.0;
 
 #define PI 3.14159265
 sf::Texture texture;
+sf::Font font;
 
 Animation idleAnimationLeft(false,"idleLeft");
 Animation crouchingAnimationLeft(false,"crouchLeft");
@@ -36,6 +39,7 @@ float jumpSpeed = 500;
 int carryList[1] = { 0 };
 int chuckList[2] = { 0 };
 int teamList[1] = { 0 };
+int victory = 0;
 
 std::pair<float, float> p1V, p2V;
 
@@ -365,7 +369,7 @@ void checkCollision(AnimatedSprite player, AnimatedSprite hammer) {
 
 		}
 		else if (hammer.getTeam() != player.getTeam()) {
-			//die
+			victory = hammer.getTeam();
 		}
 	}
 }
@@ -378,7 +382,7 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime) 
 	float y = sprite.getVelocityY() / fr;
 
 	float throwingVelocity = 500;
-	float angle = -45;
+	float angle = -30;
 	std::pair<float, float> outputPair;
 
 	State current = static_cast<State>(sprite.getCurrState());
@@ -392,12 +396,21 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime) 
 			carryList[0] = 0;
 			y = throwingVelocity*sin(angle*PI / 180);
 			x = throwingVelocity*cos(angle*PI / 180);
+			if (sprite.getTeam() == 1) {
+
+				x += abs(p1V.first / fr);
+				y += p1V.second / fr;
+			}
+			else {
+				x += abs(p2V.first / fr);
+				y += p2V.second / fr;
+			}
+			
 			//printf("%i", chuckList[sprite.getTeam() - 1]);
 
 			if (chuckList[sprite.getTeam() - 1] == 1)
 				
 				x = -x;
-
 		}
 		else {
 			if (sprite.getTeam() == 1){
@@ -421,10 +434,19 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime) 
 
 	
 	if (spriteRight > screenDimensions.x - 1) {
-		x = -x;
+		
+		if (x > 0) {
+
+			x = -x;
+		}
+		
+		
 	}
 	if (spriteLeft < 1) {
-		x = -x;
+		if (x < 0) {
+
+			x = -x;
+		}
 	}
 	if (sprite.getGlobalBounds().intersects(floorBox.getGlobalBounds())) {
 		if (y > 0) {
@@ -469,21 +491,44 @@ int main()
 		return 1;
 	}
 
+	
+	if (!font.loadFromFile("smb.ttf"))
+	{
+		// error...
+	}
+
+	sf::Text sideText;
+
+	// select the font
+	sideText.setFont(font); // font is a sf::Font						// set the string to display
+	sideText.setString("Your Side");
+	// set the character size
+	sideText.setCharacterSize(24); // in pixels, not point
+	sideText.setFillColor(sf::Color(255, 0, 0));
+	// set the text style
+	sideText.setStyle(sf::Text::Bold);
+
+	sideText.setPosition(screenDimensions.x / 6, screenDimensions.y * 7 / 8);
+
+
+
+
+
 	// set up the animations for all four directions (set spritesheet and push frames)
 	setupAnimations();
 
 	// set up AnimatedSprite
 	AnimatedSprite player1(sf::seconds(1/25.f),1);
-	player1.changePos(screenDimensions.x/2 -200, screenDimensions.y/2);
+	player1.changePos(screenDimensions.x/2 -200, screenDimensions.y*2/3);
 
 	AnimatedSprite player2(sf::seconds(1 / 25.f), 2);
-	player2.changePos(screenDimensions.x / 2 + 200, screenDimensions.y / 2);
+	player2.changePos(screenDimensions.x / 2 + 200, screenDimensions.y *2/3);
 
 	AnimatedSprite hammer1(sf::seconds(1 / 25.f), 0);
-	hammer1.changePos(screenDimensions.x / 2 - 150, screenDimensions.y / 2);
+	hammer1.changePos(screenDimensions.x / 2 - 150, screenDimensions.y* 2/3);
 
 	sf::Clock frameClock;
-	
+	sf::Text endText;
 
 	while (window.isOpen())
 	{
@@ -498,9 +543,10 @@ int main()
 		}
 
 		sf::Time frameTime = frameClock.restart();
-		
-		player1.setAnimation(getCurrentAnimation(player1,false));
-		
+
+		if(victory == 0){
+		player1.setAnimation(getCurrentAnimation(player1, false));
+
 		player1.setState(getCurrentState(player1, static_cast<State>(player1.getCurrState()), event));
 		player1.update(frameTime);
 		newVelocity = updatePlayer(player1, frameTime);
@@ -508,7 +554,7 @@ int main()
 		player1.movePosition();
 		p1V = newVelocity;
 
-		player2.setAnimation(getCurrentAnimation(player2,false));
+		player2.setAnimation(getCurrentAnimation(player2, false));
 		player2.setState(getCurrentState(player2, static_cast<State>(player2.getCurrState()), event));
 		player2.update(frameTime);
 		newVelocity = updatePlayer(player2, frameTime);
@@ -517,8 +563,8 @@ int main()
 		p2V = newVelocity;
 
 
-		
-		hammer1.setAnimation(getCurrentAnimation(hammer1,true));
+
+		hammer1.setAnimation(getCurrentAnimation(hammer1, true));
 		hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
 		hammer1.update(frameTime);
 		newVelocity = updateHammer(hammer1, frameTime);
@@ -526,10 +572,32 @@ int main()
 		hammer1.setVelocity(newVelocity.first, newVelocity.second);
 		hammer1.movePosition();
 
-		checkCollision(player1,hammer1);
+		checkCollision(player1, hammer1);
 		checkCollision(player2, hammer1);
 
 		hammer1.setTeam(teamList[0]);
+		}
+		else {
+
+
+			// select the font
+			endText.setFont(font); // font is a sf::Font						// set the string to display
+			if (victory== 1) {
+				endText.setString("YOU WIN!!");
+
+			}
+			else {
+				endText.setString("YOU LOSE");
+			}
+			// set the character size
+			endText.setCharacterSize(100); // in pixels, not point
+			endText.setFillColor(sf::Color(255, 0, 0));
+			// set the text style
+			endText.setStyle(sf::Text::Bold);
+
+			endText.setPosition(screenDimensions.x/6, screenDimensions.y/ 8);
+
+		}
 		
 		//printf("%i", carryList[2]);
 
@@ -537,12 +605,22 @@ int main()
 
 		// draw
 		window.clear();
+
+
+
+
+
+			// inside the main loop, between window.clear() and window.display()
+		
 		window.draw(player1);
 		window.draw(player2);
 		window.draw(hammer1);
 		window.draw(floorBox);
 		window.draw(halfLine);
-		
+		window.draw(sideText);
+		if (victory != 0) {
+			window.draw(endText);
+		}
 
 		window.display();
 	}
