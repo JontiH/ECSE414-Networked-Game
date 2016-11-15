@@ -5,25 +5,6 @@ UDPSystem::UDPSystem(char *destIP, char *portNumber) :
 {
 }
 
-void UDPSystem::sendPacket(char *msg)
-{
-    UDPSystem::initialSetup();
-    if(UDPSystem::getInfo(true) != 0)
-    {
-        //TODO: add error debugging      
-    }
-    if(UDPSystem::createSocket(true) != 0)
-    {
-        //TODO: add error debugging
-    }
-    if(sendto(socketDesc, msg, strlen(msg), 0, i->ai_addr, i->ai_addrlen) == -1)
-    {
-        perror("UDPSystem::sendPacket()");
-        exit(EXIT_FAILURE);
-    }
-    freeaddrinfo(serviceInfo);
-    close(socketDesc);
-}
 void UDPSystem::initialSetup()
 {
     memset(&hints, 0, sizeof hints);
@@ -32,48 +13,49 @@ void UDPSystem::initialSetup()
     hints.ai_flags = AI_PASSIVE;
 }
 
-int UDPSystem::getInfo(bool isSending)
+int UDPSystem::getInfo()
 {
-    if(!isSending)
+    if((receivingValue = getaddrinfo(NULL, m_portNumber, &hints, &receivingInfo)) != 0)
     {
-        if((infoValue = getaddrinfo(NULL, m_portNumber, &hints, &serviceInfo)) != 0)
-        {
-            fprintf(stderr, "UDPSystem::recvPacket()::getInfo(true): %s\n", gai_strerror(infoValue));
-            return 1;
-        }
+        fprintf(stderr, "UDPSystem::getaddrinfo(): %s\n", gai_strerror(receivingValue));
+        return 1;
     }
-    else
+    if((sendingValue = getaddrinfo(m_destIP, m_portNumber, &hints, &sendingInfo)) != 0)
     {
-        if((infoValue = getaddrinfo(m_destIP, m_portNumber, &hints, &serviceInfo)) != 0)
-        {
-            fprintf(stderr, "UDPSystem::sendPacket()::getInfo(false): %s\n", gai_strerror(infoValue));
-            return 1;
-        }
+        fprintf(stderr, "UDPSystem::getaddrinfo(): %s\n", gai_strerror(sendingValue));
+        return 1;
     }
     return 0;
 }
 
-int UDPSystem::createSocket(bool isSending)
+int UDPSystem::createSocket()
 {
-    for(i = serviceInfo; i != NULL; i = i->ai_next)
+    for(i = receivingInfo; i != NULL; i = i->ai_next)
     {
-        if((socketDesc = socket(i->ai_family, i->ai_socktype, i->ai_protocol)) == -1)
+        if((receivingSocket = socket(i->ai_family, i->ai_socktype, i->ai_protocol)) == -1)
         {
-            perror("Warning: UDPSystem::sendPacket()::createsocket():");
+            perror("Warning: UDPSystem::createsocket():");
             continue;
         }
-        if(!isSending){
-            if(bind(socketDesc, i->ai_addr, i->ai_addrlen) == -1)
-                    {
-                        close(socketDesc);
-                        perror("Warning: UDPSystem::recvPacket()::createsocket(): bind():");
-                        continue;
+        fcntl(receivingSocket, F_SETFL, O_NONBLOCK);
+        if(bind(receivingSocket, i->ai_addr, i->ai_addrlen) == -1)
+        {
+            perror("Warning: UDPSystem::recvPacket()::createsocket(): bind():");
+            continue;
                         
-                    }
         }
         break;
     }
-    if(i == NULL)
+    for(j = sendingInfo; j != NULL; j = j->ai_next)
+    {
+        if((sendingSocket = socket(j->ai_family, j->ai_socktype, j->ai_protocol)) == -1)
+        {
+            perror("Warning: UDPSystem::createsocket():");
+            continue;
+        }
+        break;
+    }
+    if((i == NULL) || (j == NULL))
     {
         fprintf(stderr, "UDPSystem::()::createSocket(): Failed to bind socket\n");
         return 1;
@@ -81,24 +63,51 @@ int UDPSystem::createSocket(bool isSending)
     return 0;
 }
 
-char * UDPSystem::recvPacket()
+void UDPSystem::init()
 {
     UDPSystem::initialSetup();
-    if(UDPSystem::getInfo(false) != 0)
-        {
-            //TODO: add error debugging      
-        }
-    if(UDPSystem::createSocket(false) != 0)
-        {
-            //TODO: add error debugging
-        }
-    freeaddrinfo(serviceInfo);
-    if((msgValue = recvfrom(socketDesc, m_msg, BUFFER_LEN-1, 0, (sockaddr *)&client_addr, &client_len)) == -1)
+    if(UDPSystem::getInfo() == 1)
     {
-        perror("UDPSystem::recvPacket()::recvfrom()");
-        exit(EXIT_FAILURE);
+        //TODO: Error debugging
     }
-    close(socketDesc);
+    if(UDPSystem::createSocket() == 1)
+    {
+        //TODO: Error debugging
+    }
+    freeaddrinfo(receivingInfo);
+    freeaddrinfo(sendingInfo);
+}
 
+char * UDPSystem::recvPacket()
+{
+    FD_ZERO(&readfds);
+    FD_SET(receivingSocket, &readfds);
+    int n = receivingSocket + 1;
+    timeOut.tv_sec = 0;
+    timeOut.tv_usec = TIME_OUT;
+    
+    select(n, &readfds, NULL, NULL, &timeOut);
+    if(FD_ISSET(receivingSocket, &readfds))
+    {
+        if((msgValue = recvfrom(receivingSocket, m_msg, BUFFER_LEN-1, 0, \
+                        (sockaddr *)&client_addr, &client_len)) == -1)
+        {
+            perror("UDPSystem::recvfrom()");
+        }            
+    }
     return m_msg;
+}
+
+void UDPSystem::sendPacket(char *msg)
+{
+    if(sendto(sendingSocket, msg, strlen(msg), 0, i->ai_addr, i->ai_addrlen) == -1)
+    {
+        perror("UDPSystem::sendPacket()");
+    }
+}
+
+void UDPSystem::closeSocket()
+{
+    close(receivingSocket);
+    close(sendingSocket);
 }
