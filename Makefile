@@ -17,7 +17,7 @@ all: main
 
 main: AnimatedSprite.o Animation.o main.o
 	$(CC) $(CFLAGS) -o game AnimatedSprite.o Animation.o main.o \
-		-lsfml-graphics -lsfml-window -lsfml-system
+		-lpthread -lsfml-graphics -lsfml-window -lsfml-system
 
 AnimatedSprite.o: AnimatedSprite.cpp AnimatedSprite.hpp
 	$(CC) $(CFLAGS) -c AnimatedSprite.cpp
@@ -30,4 +30,5 @@ main.o: main.cpp
 
 clean:
 	rm -f game *.o *~
+
 
