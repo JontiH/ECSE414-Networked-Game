@@ -78,13 +78,13 @@ void UDPSystem::init()
     freeaddrinfo(sendingInfo);
 }
 
-char * UDPSystem::recvPacket()
+char * UDPSystem::recvPacket(int timeOutValue)
 {
     FD_ZERO(&readfds);
     FD_SET(receivingSocket, &readfds);
     int n = receivingSocket + 1;
     timeOut.tv_sec = 0;
-    timeOut.tv_usec = TIME_OUT;
+    timeOut.tv_usec = timeOutValue;
     
     select(n, &readfds, NULL, NULL, &timeOut);
     if(FD_ISSET(receivingSocket, &readfds))
