@@ -15,7 +15,7 @@ void UDPSystem::initialSetup()
 
 int UDPSystem::getInfo()
 {
-    if((receivingValue = getaddrinfo(m_destIP, m_portNumber, &hints, &receivingInfo)) != 0)
+    if((receivingValue = getaddrinfo(NULL, m_portNumber, &hints, &receivingInfo)) != 0)
     {
         fprintf(stderr, "UDPSystem::getaddrinfo(): %s\n", gai_strerror(receivingValue));
         return 1;
@@ -29,13 +29,13 @@ int UDPSystem::createSocket()
     {
         if((receivingSocket = socket(i->ai_family, i->ai_socktype, i->ai_protocol)) == -1)
         {
-            perror("Warning: UDPSystem::createsocket():");
+            perror("Warning: UDPSystem::socket():");
             continue;
         }
         fcntl(receivingSocket, F_SETFL, O_NONBLOCK);
         if(bind(receivingSocket, i->ai_addr, i->ai_addrlen) == -1)
         {
-            perror("Warning: UDPSystem::recvPacket()::createsocket(): bind():");
+            perror("Warning: UDPSystem::bind():");
             continue;
                         
         }
@@ -132,6 +132,7 @@ void UDPSystem::sendPacket(char *msg)
         select(n, NULL , &writefds, NULL, &timeOut);
         if(FD_ISSET(receivingSocket, &writefds))
         {
+            client_storage_len = sizeof client_storage[k];
             if(sendto(receivingSocket, msg, strlen(msg), 0, \
                         (sockaddr *)&client_storage[k], client_storage_len) == -1)
             {   
@@ -144,8 +145,15 @@ void UDPSystem::sendPacket(char *msg)
 void UDPSystem::connect()
 {
     char tempmsg[] = "start";
+    sockaddr_in initialAddr; 
+    socklen_t initialAddrLen = sizeof initialAddr;
+    initialAddr.sin_family = AF_INET;
+    initialAddr.sin_port = htons(atoi(m_portNumber));
+    inet_pton(AF_INET, m_destIP, &(initialAddr.sin_addr));
+    memset(initialAddr.sin_zero, '\0', sizeof initialAddr.sin_zero);
+
     if(sendto(receivingSocket, tempmsg, strlen(tempmsg), 0, \
-               i->ai_addr, i->ai_addrlen) == -1)
+               (sockaddr *)&initialAddr, initialAddrLen) == -1)
     {   
         perror("UDPSystem::connect()");
     }

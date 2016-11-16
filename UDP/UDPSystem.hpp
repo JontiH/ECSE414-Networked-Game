@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <fcntl.h>
 
@@ -31,7 +32,7 @@ class UDPSystem
     addrinfo hints, *receivingInfo, *i;
     sockaddr_storage client_addr, client_storage[2];
     socklen_t client_len = sizeof client_addr;
-    socklen_t client_storage_len = sizeof client_storage;
+    socklen_t client_storage_len;
     timeval timeOut;
     fd_set readfds;
     fd_set writefds;
