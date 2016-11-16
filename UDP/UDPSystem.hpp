@@ -14,6 +14,7 @@
 #include <fcntl.h>
 
 #define BUFFER_LEN 5000
+#define SEND_TIMEOUT 125000
 
 class UDPSystem
 {
@@ -21,6 +22,7 @@ class UDPSystem
     int msgValue;
     int receivingValue;
     int nameValue;
+    int numClient;
     char *m_destIP;
     char m_msg[BUFFER_LEN];
     char *m_portNumber;
@@ -29,6 +31,7 @@ class UDPSystem
     addrinfo hints, *receivingInfo, *i;
     sockaddr_storage client_addr, client_storage[2];
     socklen_t client_len = sizeof client_addr;
+    socklen_t client_storage_len = sizeof client_storage;
     timeval timeOut;
     fd_set readfds;
     fd_set writefds;

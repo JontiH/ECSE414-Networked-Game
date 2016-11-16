@@ -108,10 +108,36 @@ char * UDPSystem::recvPacket(int timeOutValue)
 }
 
 void UDPSystem::sendPacket(char *msg)
-{
-    if(sendto(receivingSocket, msg, strlen(msg), 0, i->ai_addr, i->ai_addrlen) == -1)
+{    
+    FD_ZERO(&writefds);
+    FD_SET(receivingSocket, &writefds);
+    int n = receivingSocket + 1;
+    timeOut.tv_sec = 0;
+    timeOut.tv_usec = SEND_TIMEOUT;
+
+    if(clientIP[0][0] != '\0')
     {
-        perror("UDPSystem::sendPacket()");
+        if(clientIP[1][0] != '\0')
+        {
+            numClient = 2;
+        }
+        numClient = 1;
+    }
+    else
+    {
+        numClient = 0;
+    }
+    
+    for(int k = 0; k < numClient; k++)
+    {
+        select(n, NULL , &writefds, NULL, &timeOut);
+        if(FD_ISSET(receivingSocket, &writefds))
+        {
+            if(sendto(receivingSocket, msg, strlen(msg), 0, (sockaddr *)&client_storage[k], client_storage_len) == -1)
+            {   
+                perror("UDPSystem::sendPacket()");
+            }   
+        }
     }
 }
 
