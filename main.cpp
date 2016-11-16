@@ -36,9 +36,9 @@ float stopFactor = 0.10 ;
 float gravity = 9.8;
 float jumpSpeed = 500;
 
-int carryList[1] = { 0 };
+int carryList[2] = { 0 };
 int chuckList[2] = { 0 };
-int teamList[1] = { 0 };
+int teamList[2] = { 0 };
 int victory = 0;
 
 std::pair<float, float> p1V, p2V;
@@ -55,93 +55,183 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 	State currentState = previousState;
 	// if a key was pressed set the correct animation and move correctly
 
-	
-	if (currentState == die) {
-		return currentState;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-	{
-		
-		if (previousState == chuckLeft || previousState == chuckRight) {
-			chuckList[sprite.getTeam() - 1] = 0;
-			currentState = previousState;
+	if (sprite.getTeam() == 1) {
+		if (currentState == die) {
+			return currentState;
 		}
-		else {
-			
-			if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight) ) {
-				
-				currentState = chuckRight;
-				
-				chuckList[sprite.getTeam() - 1] = 2;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		{
+
+			if (previousState == chuckLeft || previousState == chuckRight) {
+				chuckList[sprite.getTeam() - 1] = 0;
+				currentState = previousState;
 			}
 			else {
-				
-				currentState = chuckLeft;
-				chuckList[sprite.getTeam() - 1] = 1;
+
+				if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight)) {
+
+					currentState = chuckRight;
+
+					chuckList[sprite.getTeam() - 1] = 2;
+				}
+				else {
+
+					currentState = chuckLeft;
+					chuckList[sprite.getTeam() - 1] = 1;
+				}
 			}
-		}
-		
-		noKeyWasPressed = false;
-	}
 
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-	{
-
-		if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
-			currentState = crouchLeft;
-		}
-		else {
-			currentState = crouchRight;
+			noKeyWasPressed = false;
 		}
 
-		noKeyWasPressed = false;
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-	{
-		if ((currentState == jumpLeft) || (currentState == jumpRight)) {
-			currentState = jumpLeft;
-		}
-		else if (currentState == crouchRight) {
-			currentState = crouchLeft;
-		}
-		else
-			currentState = walkLeft;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
 
-		noKeyWasPressed = false;
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-	{
-		if ((currentState == jumpRight) || (currentState == jumpRight)) {
-			currentState = jumpRight;
-		}
-		else if (currentState == crouchLeft) {
-			currentState = crouchRight;
-		}
-		else
-			currentState = walkRight;
-		noKeyWasPressed = false;
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-	{
-		if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) ||(currentState == jumpRight)) {
-			currentState = jumpRight;
-		}
-		else
-			currentState = jumpLeft;
-		noKeyWasPressed = false;
-		
-	}
-	
-	// if no key was pressed stop the animation
-	else if (noKeyWasPressed)
-	{
-		
+			if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
+				currentState = crouchLeft;
+			}
+			else {
+				currentState = crouchRight;
+			}
 
-		if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
-			currentState = idleLeft;
+			noKeyWasPressed = false;
 		}
-		else
-			currentState = idleRight;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			if ((currentState == jumpLeft) || (currentState == jumpRight)) {
+				currentState = jumpLeft;
+			}
+			else if (currentState == crouchRight) {
+				currentState = crouchLeft;
+			}
+			else
+				currentState = walkLeft;
+
+			noKeyWasPressed = false;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			if ((currentState == jumpRight) || (currentState == jumpRight)) {
+				currentState = jumpRight;
+			}
+			else if (currentState == crouchLeft) {
+				currentState = crouchRight;
+			}
+			else
+				currentState = walkRight;
+			noKeyWasPressed = false;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		{
+			if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight)) {
+				currentState = jumpRight;
+			}
+			else
+				currentState = jumpLeft;
+			noKeyWasPressed = false;
+
+		}
+
+		// if no key was pressed stop the animation
+		else if (noKeyWasPressed)
+		{
+
+
+			if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
+				currentState = idleLeft;
+			}
+			else
+				currentState = idleRight;
+		}
+	}
+	else {
+		if (currentState == die) {
+			return currentState;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad0))
+		{
+
+			if (previousState == chuckLeft || previousState == chuckRight) {
+				chuckList[sprite.getTeam() - 1] = 0;
+				currentState = previousState;
+			}
+			else {
+
+				if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight)) {
+
+					currentState = chuckRight;
+
+					chuckList[sprite.getTeam() - 1] = 2;
+				}
+				else {
+
+					currentState = chuckLeft;
+					chuckList[sprite.getTeam() - 1] = 1;
+				}
+			}
+
+			noKeyWasPressed = false;
+		}
+
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad5))
+		{
+
+			if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
+				currentState = crouchLeft;
+			}
+			else {
+				currentState = crouchRight;
+			}
+
+			noKeyWasPressed = false;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad4))
+		{
+			if ((currentState == jumpLeft) || (currentState == jumpRight)) {
+				currentState = jumpLeft;
+			}
+			else if (currentState == crouchRight) {
+				currentState = crouchLeft;
+			}
+			else
+				currentState = walkLeft;
+
+			noKeyWasPressed = false;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::  Numpad6))
+		{
+			if ((currentState == jumpRight) || (currentState == jumpRight)) {
+				currentState = jumpRight;
+			}
+			else if (currentState == crouchLeft) {
+				currentState = crouchRight;
+			}
+			else
+				currentState = walkRight;
+			noKeyWasPressed = false;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad8))
+		{
+			if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight)) {
+				currentState = jumpRight;
+			}
+			else
+				currentState = jumpLeft;
+			noKeyWasPressed = false;
+
+		}
+
+		// if no key was pressed stop the animation
+		else if (noKeyWasPressed)
+		{
+
+
+			if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
+				currentState = idleLeft;
+			}
+			else
+				currentState = idleRight;
+		}
 	}
 	
 	
@@ -356,15 +446,15 @@ x = 0;
 
 	return std::pair<float, float>(x*fr, y*fr);
 }
-void checkCollision(AnimatedSprite player, AnimatedSprite hammer) {
+void checkCollision(AnimatedSprite player, AnimatedSprite hammer, int id) {
 
 
 	if (hammer.getGlobalBounds().intersects(player.getGlobalBounds())) {
 
 		if (hammer.getTeam() == 0) {
 
-			teamList[0] =player.getTeam();
-			carryList[0] = 1;
+			teamList[id-1] =player.getTeam();
+			carryList[player.getTeam()-1] = 1;
 
 
 		}
@@ -375,7 +465,7 @@ void checkCollision(AnimatedSprite player, AnimatedSprite hammer) {
 }
 
 
-std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime) {
+std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, int id) {
 
 	float fr = frameTime.asSeconds();
 	float x = sprite.getVelocityX() / fr;
@@ -388,12 +478,13 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime) 
 	State current = static_cast<State>(sprite.getCurrState());
 
 	y += gravity;
-	
-	 if (carryList[0] == 1) {
+	int team = teamList[id - 1];
+	 if (carryList[team-1] == 1) {
+
 
 		if (chuckList[sprite.getTeam() - 1] > 0) {
 
-			carryList[0] = 0;
+			carryList[team - 1] = 0;
 			y = throwingVelocity*sin(angle*PI / 180);
 			x = throwingVelocity*cos(angle*PI / 180);
 			if (sprite.getTeam() == 1) {
@@ -453,11 +544,11 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime) 
 			y = 0;
 		}
 		
-		if (carryList[0] == 0) {
+		if (carryList[team - 1] == 0) {
 			
 			if (y == 0) {
 				x = 0;
-				teamList[0] = 0;
+				teamList[id - 1] = 0;
 			}
 			
 		}
@@ -519,16 +610,21 @@ int main()
 
 	// set up AnimatedSprite
 	AnimatedSprite player1(sf::seconds(1/25.f),1);
-	player1.changePos(screenDimensions.x/2 -200, screenDimensions.y*2/3);
+	player1.changePos(screenDimensions.x/2 -300, screenDimensions.y*2/3);
 
 	AnimatedSprite player2(sf::seconds(1 / 25.f), 2);
-	player2.changePos(screenDimensions.x / 2 + 200, screenDimensions.y *2/3);
+	player2.changePos(screenDimensions.x / 2 + 300, screenDimensions.y *2/3);
 
 	AnimatedSprite hammer1(sf::seconds(1 / 25.f), 0);
-	hammer1.changePos(screenDimensions.x / 2 - 150, screenDimensions.y* 2/3);
+	hammer1.changePos(screenDimensions.x / 2 - 100, screenDimensions.y* 2/3);
+
+	AnimatedSprite hammer2(sf::seconds(1 / 25.f), 0);
+	hammer2.changePos(screenDimensions.x / 2 + 100, screenDimensions.y * 2 / 3);
 
 	sf::Clock frameClock;
 	sf::Text endText;
+
+	sf::Clock updateClock;
 
 	while (window.isOpen())
 	{
@@ -541,91 +637,112 @@ int main()
 			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
 				window.close();
 		}
-
-		sf::Time frameTime = frameClock.restart();
-
-		if(victory == 0){
-		player1.setAnimation(getCurrentAnimation(player1, false));
-
-		player1.setState(getCurrentState(player1, static_cast<State>(player1.getCurrState()), event));
-		player1.update(frameTime);
-		newVelocity = updatePlayer(player1, frameTime);
-		player1.setVelocity(newVelocity.first, newVelocity.second);
-		player1.movePosition();
-		p1V = newVelocity;
-
-		player2.setAnimation(getCurrentAnimation(player2, false));
-		player2.setState(getCurrentState(player2, static_cast<State>(player2.getCurrState()), event));
-		player2.update(frameTime);
-		newVelocity = updatePlayer(player2, frameTime);
-		player2.setVelocity(newVelocity.first, newVelocity.second);
-		player2.movePosition();
-		p2V = newVelocity;
-
-
-
-		hammer1.setAnimation(getCurrentAnimation(hammer1, true));
-		hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
-		hammer1.update(frameTime);
-		newVelocity = updateHammer(hammer1, frameTime);
-
-		hammer1.setVelocity(newVelocity.first, newVelocity.second);
-		hammer1.movePosition();
-
-		checkCollision(player1, hammer1);
-		checkCollision(player2, hammer1);
-
-		hammer1.setTeam(teamList[0]);
+		
+		while (updateClock.getElapsedTime().asMilliseconds() < 1000 / 60) {
 		}
-		else {
+			updateClock.restart();
+			sf::Time frameTime = sf::milliseconds(1000/60);
+			if (victory == 0) {
+				player1.setAnimation(getCurrentAnimation(player1, false));
+
+				player1.setState(getCurrentState(player1, static_cast<State>(player1.getCurrState()), event));
+				player1.update(frameTime);
+				newVelocity = updatePlayer(player1, frameTime);
+				player1.setVelocity(newVelocity.first, newVelocity.second);
+				player1.movePosition();
+				p1V = newVelocity;
+
+				player2.setAnimation(getCurrentAnimation(player2, false));
+				player2.setState(getCurrentState(player2, static_cast<State>(player2.getCurrState()), event));
+				player2.update(frameTime);
+				newVelocity = updatePlayer(player2, frameTime);
+				player2.setVelocity(newVelocity.first, newVelocity.second);
+				player2.movePosition();
+				p2V = newVelocity;
 
 
-			// select the font
-			endText.setFont(font); // font is a sf::Font						// set the string to display
-			if (victory== 1) {
-				endText.setString("YOU WIN!!");
 
+				hammer1.setTeam(teamList[0]);
+
+				hammer1.setAnimation(getCurrentAnimation(hammer1, true));
+				hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
+				hammer1.update(frameTime);
+				newVelocity = updateHammer(hammer1, frameTime,1);
+
+				hammer1.setVelocity(newVelocity.first, newVelocity.second);
+				hammer1.movePosition();
+
+				checkCollision(player1, hammer1,1);
+				checkCollision(player2, hammer1,1);
+
+
+
+
+				hammer2.setTeam(teamList[1]);
+				hammer2.setAnimation(getCurrentAnimation(hammer2, true));
+				hammer2.setState(getCurrentState(hammer2, static_cast<State>(hammer2.getCurrState()), event));
+				hammer2.update(frameTime);
+				newVelocity = updateHammer(hammer2, frameTime,2);
+
+				hammer2.setVelocity(newVelocity.first, newVelocity.second);
+				hammer2.movePosition();
+
+				checkCollision(player1, hammer2,2);
+				checkCollision(player2, hammer2,2);
+				
 			}
 			else {
-				endText.setString("YOU LOSE");
+
+
+				// select the font
+				endText.setFont(font); // font is a sf::Font						// set the string to display
+				if (victory == 1) {
+					endText.setString("YOU WIN!!");
+
+				}
+				else {
+					endText.setString("YOU LOSE :(");
+				}
+				// set the character size
+				endText.setCharacterSize(100); // in pixels, not point
+				endText.setFillColor(sf::Color(255, 0, 0));
+				// set the text style
+				endText.setStyle(sf::Text::Bold);
+
+				endText.setPosition(screenDimensions.x / 6, screenDimensions.y / 8);
+
 			}
-			// set the character size
-			endText.setCharacterSize(100); // in pixels, not point
-			endText.setFillColor(sf::Color(255, 0, 0));
-			// set the text style
-			endText.setStyle(sf::Text::Bold);
 
-			endText.setPosition(screenDimensions.x/6, screenDimensions.y/ 8);
+			//printf("%i", carryList[2]);
 
-		}
-		
-		//printf("%i", carryList[2]);
 
-	
 
-		// draw
-		window.clear();
+			// draw
+			window.clear();
 
 
 
 
 
 			// inside the main loop, between window.clear() and window.display()
-		
-		window.draw(player1);
-		window.draw(player2);
-		window.draw(hammer1);
-		window.draw(floorBox);
-		window.draw(halfLine);
-		window.draw(sideText);
-		if (victory != 0) {
-			window.draw(endText);
-		}
 
-		window.display();
-	}
+			window.draw(player1);
+			window.draw(player2);
+			window.draw(hammer1);
+			window.draw(hammer2);
+			window.draw(floorBox);
+			window.draw(halfLine);
+			window.draw(sideText);
+			if (victory != 0) {
+				window.draw(endText);
+			}
+
+			window.display();
+		}
+		
+
+		
 
 	return 0;
 }
-
 
