@@ -17,16 +17,17 @@
 
 class UDPSystem
 {
-    int sendingSocket;
     int receivingSocket;
     int msgValue;
-    int sendingValue;
     int receivingValue;
+    int nameValue;
     char *m_destIP;
     char m_msg[BUFFER_LEN];
     char *m_portNumber;
-    addrinfo hints, *sendingInfo, *receivingInfo, *i, *j;
-    sockaddr_storage client_addr;
+    char clientHost[NI_MAXHOST];
+    char clientIP[2][NI_MAXHOST];
+    addrinfo hints, *receivingInfo, *i;
+    sockaddr_storage client_addr, client_storage[2];
     socklen_t client_len = sizeof client_addr;
     timeval timeOut;
     fd_set readfds;

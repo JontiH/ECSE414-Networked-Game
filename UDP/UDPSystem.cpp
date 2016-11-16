@@ -20,11 +20,6 @@ int UDPSystem::getInfo()
         fprintf(stderr, "UDPSystem::getaddrinfo(): %s\n", gai_strerror(receivingValue));
         return 1;
     }
-    if((sendingValue = getaddrinfo(m_destIP, m_portNumber, &hints, &sendingInfo)) != 0)
-    {
-        fprintf(stderr, "UDPSystem::getaddrinfo(): %s\n", gai_strerror(sendingValue));
-        return 1;
-    }
     return 0;
 }
 
@@ -46,16 +41,7 @@ int UDPSystem::createSocket()
         }
         break;
     }
-    for(j = sendingInfo; j != NULL; j = j->ai_next)
-    {
-        if((sendingSocket = socket(j->ai_family, j->ai_socktype, j->ai_protocol)) == -1)
-        {
-            perror("Warning: UDPSystem::createsocket():");
-            continue;
-        }
-        break;
-    }
-    if((i == NULL) || (j == NULL))
+    if(i == NULL)
     {
         fprintf(stderr, "UDPSystem::()::createSocket(): Failed to bind socket\n");
         return 1;
@@ -75,7 +61,8 @@ void UDPSystem::init()
         //TODO: Error debugging
     }
     freeaddrinfo(receivingInfo);
-    freeaddrinfo(sendingInfo);
+    clientIP[0][0] = '\0';
+    clientIP[1][0] = '\0';
 }
 
 char * UDPSystem::recvPacket(int timeOutValue)
@@ -94,13 +81,35 @@ char * UDPSystem::recvPacket(int timeOutValue)
         {
             perror("UDPSystem::recvfrom()");
         }            
+        if((nameValue = getnameinfo((sockaddr *) &client_addr, client_len, \
+                        clientHost, NI_MAXHOST, NULL, 0, NI_NUMERICHOST)) != 0)
+        {
+            //TODO: Error debugging.
+        }
+        if(clientIP[0][0] != '\0')
+        {
+            if(clientIP[1][0] == '\0')
+            {
+                if(strcmp(clientHost, clientIP[0]) != 0)
+                {
+                    memcpy(clientIP[1], clientHost, strlen(clientHost)+1);
+                    memcpy(&client_storage[1], &client_addr, sizeof(client_addr));
+                }
+            }
+        }
+        else
+        {   
+            memcpy(clientIP[0], clientHost, strlen(clientHost)+1);
+            memcpy(&client_storage[0], &client_addr, sizeof(client_addr));
+        }
     }
+    printf("recv end\n");
     return m_msg;
 }
 
 void UDPSystem::sendPacket(char *msg)
 {
-    if(sendto(sendingSocket, msg, strlen(msg), 0, i->ai_addr, i->ai_addrlen) == -1)
+    if(sendto(receivingSocket, msg, strlen(msg), 0, i->ai_addr, i->ai_addrlen) == -1)
     {
         perror("UDPSystem::sendPacket()");
     }
@@ -109,5 +118,4 @@ void UDPSystem::sendPacket(char *msg)
 void UDPSystem::closeSocket()
 {
     close(receivingSocket);
-    close(sendingSocket);
 }
