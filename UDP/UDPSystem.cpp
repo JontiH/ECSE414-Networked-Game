@@ -15,7 +15,7 @@ void UDPSystem::initialSetup()
 
 int UDPSystem::getInfo()
 {
-    if((receivingValue = getaddrinfo(NULL, m_portNumber, &hints, &receivingInfo)) != 0)
+    if((receivingValue = getaddrinfo(m_destIP, m_portNumber, &hints, &receivingInfo)) != 0)
     {
         fprintf(stderr, "UDPSystem::getaddrinfo(): %s\n", gai_strerror(receivingValue));
         return 1;
@@ -103,7 +103,6 @@ char * UDPSystem::recvPacket(int timeOutValue)
             memcpy(&client_storage[0], &client_addr, sizeof(client_addr));
         }
     }
-    printf("recv end\n");
     return m_msg;
 }
 
@@ -133,11 +132,22 @@ void UDPSystem::sendPacket(char *msg)
         select(n, NULL , &writefds, NULL, &timeOut);
         if(FD_ISSET(receivingSocket, &writefds))
         {
-            if(sendto(receivingSocket, msg, strlen(msg), 0, (sockaddr *)&client_storage[k], client_storage_len) == -1)
+            if(sendto(receivingSocket, msg, strlen(msg), 0, \
+                        (sockaddr *)&client_storage[k], client_storage_len) == -1)
             {   
                 perror("UDPSystem::sendPacket()");
             }   
         }
+    }
+}
+
+void UDPSystem::connect()
+{
+    char tempmsg[] = "start";
+    if(sendto(receivingSocket, tempmsg, strlen(tempmsg), 0, \
+               i->ai_addr, i->ai_addrlen) == -1)
+    {   
+        perror("UDPSystem::connect()");
     }
 }
 

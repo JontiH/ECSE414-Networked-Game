@@ -41,9 +41,11 @@ class UDPSystem
     int createSocket();
 
 public:
+    //destIP = NULL for server. otherwise it is the server's ip.
     explicit UDPSystem(char *destIP, char *portNumber);
 
     void init();
+    void connect();
     void sendPacket(char *);
     char * recvPacket(int );
     void closeSocket();
