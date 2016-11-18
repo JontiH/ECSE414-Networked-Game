@@ -14,7 +14,7 @@
 #include <netdb.h>
 #include <fcntl.h>
 
-#define BUFFER_LEN 5000
+#define BUFFER_LEN 400 // Buffer size
 #define SEND_TIMEOUT 125000
 
 class UDPSystem
@@ -27,7 +27,7 @@ class UDPSystem
     char *m_destIP;
     char m_msg[BUFFER_LEN];
     char *m_portNumber;
-    char clientHost[NI_MAXHOST];
+    char clientHost[NI_MAXHOST]; //NI_MAXHOST size is 1025 s
     char clientIP[2][NI_MAXHOST];
     addrinfo hints, *receivingInfo, *i;
     sockaddr_storage client_addr, client_storage[2];

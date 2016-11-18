@@ -1,20 +1,59 @@
 #include "UDPSystem.hpp"
 
-UDPSystem::UDPSystem(char *destIP, char *portNumber) : 
+//REFERENCE TO sockaddr_in
+ //struct sockaddr_in {
+  //  sa_family_t    sin_family; /* address family: AF_INET */
+//   in_port_t      sin_port;   /* port in network byte order */ to convert from network byte order,
+
+//use
+//ntohs() network byte order to host short
+
+//ntohl() network byte order to host long
+
+
+
+  //  struct in_addr sin_addr;   /* internet address */
+//};
+
+///* Internet address. */
+//struct in_addr {
+ //   uint32_t       s_addr;     /* address in network byte order */
+//};
+
+//Constructor
+// in:: destIp: char* Destination IP address
+// in:: portNumber: char * Destination Port
+UDPSystem::UDPSystem(char *destIP, char *portNumber) :
     m_destIP(destIP), m_portNumber(portNumber)
 {
 }
 
+// in: void
+// out: void
+// This function performs an initializaiton of the object hints of structure type addrinfo
 void UDPSystem::initialSetup()
 {
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_DGRAM;
+    
+    memset(&hints, 0, sizeof hints);// fills the first n(sizeof hints) bytes of the memo
+    hints.ai_family = AF_UNSPEC; //allow IPV4 or IPV6
+    hints.ai_socktype = SOCK_DGRAM; /* Datagram socket  UDP*/
     hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = 0;//This field specifies the protocol for the returned socket addresses. Specifying 0 in this field indicates that socket addresses with any protocol can be returned by getaddrinfo().
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
+    
 }
-
+//in: void
+//out: void
+// getaddrinfo  initialized addrinfo structures, eachof which contains an Internet address that can be specified in a call
+//of which contains an Internet address that can be specified in a call
+//to bind(2) or connect(2)
 int UDPSystem::getInfo()
 {
+    
+    //receivingInfo is a pointer to a struct addrinfo
+    //hints is a struct addrinfo object
     if((receivingValue = getaddrinfo(NULL, m_portNumber, &hints, &receivingInfo)) != 0)
     {
         fprintf(stderr, "UDPSystem::getaddrinfo(): %s\n", gai_strerror(receivingValue));
@@ -22,6 +61,9 @@ int UDPSystem::getInfo()
     }
     return 0;
 }
+///* getaddrinfo() sets a list of address structures.
+//Try each address to a addrinfo structure until we successfully bind(2).
+//If socket() or bind() fails, the socket is closed and we try the next address. */
 
 int UDPSystem::createSocket()
 {
