@@ -8,3 +8,13 @@
 
 #include "ServerV2.hpp"
 #include "UDPSystem.hpp"
+#define BUFFERLEN 400 
+int main(int argc, char *argv[]){
+    
+    
+    //TO-DO
+    
+    
+    return 0;
+}
+
