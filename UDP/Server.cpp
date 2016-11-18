@@ -15,8 +15,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-
-#define BUFFERLEN 1000
+//#include "UDPSystem.hpp"
+#define BUFFERLEN 400 
+//already in UDPSystem.hpp
 
 /* *get_in_addr() is used to return the appriopriate value if the ip of the client is ipv4 or ipv6 */
 void *get_in_addr(sockaddr *sa){
