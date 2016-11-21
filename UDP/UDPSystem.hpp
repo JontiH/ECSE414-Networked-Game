@@ -14,13 +14,13 @@
 #include <netdb.h>
 #include <fcntl.h>
 
-#define BUFFER_LEN 400 // Buffer size
+#define BUFFER_LEN 500 // Buffer size
 #define SEND_TIMEOUT 125000
 
 class UDPSystem
 {
     int receivingSocket;
-    int msgValue;
+    int msgValue; //size of the packet
     int receivingValue;
     int nameValue;
     int numClient;
@@ -29,28 +29,34 @@ class UDPSystem
     char *m_portNumber;
     char clientHost[NI_MAXHOST]; //NI_MAXHOST size is 1025 s
     char clientIP[2][NI_MAXHOST];
+    char ip[INET6_ADDRSTRLEN];
     addrinfo hints, *receivingInfo, *i;
     sockaddr_storage client_addr, client_storage[2];
-    socklen_t client_len = sizeof client_addr;
-    socklen_t client_storage_len;
+    socklen_t client_len;
+    socklen_t client_storage_len[2];
     timeval timeOut;
     fd_set readfds;
     fd_set writefds;
-
+    
     void initialSetup();
     int getInfo();
     int createSocket();
-
+    
 public:
     //destIP = NULL for server. otherwise it is the server's ip.
     explicit UDPSystem(char *destIP, char *portNumber);
-
+    
     void init();
-    void connect();
-    void sendPacket(char *);
-    char * recvPacket(int );
+    void connect2(char *);
+    void connect(char *);
+    void sendPacket(char *, int );
+    char * recvPacket(int ,int);
     void closeSocket();
-
+    int  clientsNotConnected();
+    
+   
+    
+    
 };
 
 #endif
