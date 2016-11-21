@@ -36,9 +36,9 @@ int main(int argc, char *argv[]){
     //to stop infinite loop use control c
     server.init();
     while(1){
-         printf("Server: Waiting from recvfrom...\n");
+         printf("Server: Waiting for players data..\n");
          msg = server.recvPacket(SEND_TIMEOUT,0);// 0 because we are forwarding packets and we dont tell the clients which player they are
-         printf("Server: packet contains \"%s\"\n",msg);
+         printf("Server: packet from player contains \"%s\"\n",msg);
         
          server.sendPacket(msg,0);// we are not telling each client which player they are
     }
