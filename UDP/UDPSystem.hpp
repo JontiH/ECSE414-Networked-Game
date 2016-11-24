@@ -37,11 +37,6 @@ class UDPSystem
     fd_set readfds;
     fd_set writefds;
 
-    struct messageContainer{
-        int player;
-        char *msg;
-    }playerMessage;
-
     void initialSetup();
     int getInfo();
     int createSocket();
@@ -49,6 +44,11 @@ class UDPSystem
 public:
     //destIP = NULL for server. otherwise it is the server's ip.
     explicit UDPSystem(char *destIP, char *portNumber);
+
+    struct messageContainer{
+        int player;
+        char *msg;
+    };
 
     void init();
     void connect();

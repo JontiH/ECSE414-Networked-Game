@@ -67,7 +67,7 @@ void UDPSystem::init()
 
 UDPSystem::messageContainer UDPSystem::recvPacket(int timeOutValue)
 {
-    //clear the struct
+    UDPSystem::messageContainer playerMessage;
     playerMessage.player = 0;
     playerMessage.msg = NULL;
 
