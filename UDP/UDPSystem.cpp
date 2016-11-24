@@ -65,11 +65,17 @@ void UDPSystem::init()
     clientIP[1][0] = '\0';
 }
 
-char * UDPSystem::recvPacket(int timeOutValue)
+UDPSystem::messageContainer UDPSystem::recvPacket(int timeOutValue)
 {
-    FD_ZERO(&readfds);
-    FD_SET(receivingSocket, &readfds);
-    int n = receivingSocket + 1;
+    //clear the struct
+    playerMessage.player = 0;
+    playerMessage.msg = NULL;
+
+    FD_ZERO(&readfds); //clear the set readfds
+    FD_SET(receivingSocket, &readfds); //add receivingSocket to the set
+    int n = receivingSocket + 1; //select()'s manpage says to add 1, so we add 1...
+    
+    //initialize the timeout value for select()
     timeOut.tv_sec = 0;
     timeOut.tv_usec = timeOutValue;
     
@@ -94,6 +100,22 @@ char * UDPSystem::recvPacket(int timeOutValue)
                 {
                     memcpy(clientIP[1], clientHost, strlen(clientHost)+1);
                     memcpy(&client_storage[1], &client_addr, sizeof(client_addr));
+                    playerMessage.player = 2;
+                }
+                else
+                {
+                    playerMessage.player = 1;
+                }
+            }
+            else
+            {
+                if(strcmp(clientHost, clientIP[0]) != 0)
+                {
+                    playerMessage.player = 2;
+                }
+                else
+                {
+                    playerMessage.player = 1;
                 }
             }
         }
@@ -101,44 +123,49 @@ char * UDPSystem::recvPacket(int timeOutValue)
         {   
             memcpy(clientIP[0], clientHost, strlen(clientHost)+1);
             memcpy(&client_storage[0], &client_addr, sizeof(client_addr));
+            playerMessage.player = 1;
         }
     }
-    return m_msg;
+    playerMessage.msg = m_msg;
+    return playerMessage;
 }
 
-void UDPSystem::sendPacket(char *msg)
+void UDPSystem::sendPacket(int player, char *msg)
 {    
     FD_ZERO(&writefds);
     FD_SET(receivingSocket, &writefds);
     int n = receivingSocket + 1;
     timeOut.tv_sec = 0;
     timeOut.tv_usec = SEND_TIMEOUT;
+    int index;
 
-    if(clientIP[0][0] != '\0')
+    switch(player)
     {
-        if(clientIP[1][0] != '\0')
-        {
-            numClient = 2;
-        }
-        numClient = 1;
+        case 1: index = 0; 
+                numClient = 1;
+                break;
+        case 2: index = 1;
+                numClient = 2;
+                break;
+        default: index = 0;
+                 numClient = 2;
+                 break;
+
     }
-    else
-    {
-        numClient = 0;
-    }
-    
-    for(int k = 0; k < numClient; k++)
+   
+    while(index < numClient)
     {
         select(n, NULL , &writefds, NULL, &timeOut);
         if(FD_ISSET(receivingSocket, &writefds))
         {
-            client_storage_len = sizeof client_storage[k];
+            client_storage_len = sizeof client_storage[index];
             if(sendto(receivingSocket, msg, strlen(msg), 0, \
-                        (sockaddr *)&client_storage[k], client_storage_len) == -1)
+                        (sockaddr *)&client_storage[index], client_storage_len) == -1)
             {   
                 perror("UDPSystem::sendPacket()");
             }   
         }
+        index++;
     }
 }
 

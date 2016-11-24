@@ -15,7 +15,7 @@
 #include <fcntl.h>
 
 #define BUFFER_LEN 5000
-#define SEND_TIMEOUT 125000
+#define SEND_TIMEOUT 10000
 
 class UDPSystem
 {
@@ -37,6 +37,11 @@ class UDPSystem
     fd_set readfds;
     fd_set writefds;
 
+    struct messageContainer{
+        int player;
+        char *msg;
+    }playerMessage;
+
     void initialSetup();
     int getInfo();
     int createSocket();
@@ -47,8 +52,8 @@ public:
 
     void init();
     void connect();
-    void sendPacket(char *);
-    char * recvPacket(int );
+    void sendPacket(int ,char *);
+    messageContainer recvPacket(int );
     void closeSocket();
 
 };

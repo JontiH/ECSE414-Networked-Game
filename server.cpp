@@ -51,9 +51,8 @@ sf::RectangleShape floorBox(sf::Vector2f(screenDimensions.x, FLOOR_HEIGHT));
 sf::RectangleShape halfLine(sf::Vector2f(10, FLOOR_HEIGHT));
 
 //create udpsystem object to connect to server
-char serverIP[] = "24.157.244.163";
 char serverPort[] = "6767";
-UDPSystem udpClient(serverIP, serverPort);
+UDPSystem udpServer(NULL, serverPort);
 
 
 State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event event)  {
@@ -571,9 +570,17 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, 
 
 int main()
 { 
+    char p1[10000];
+    char p2[10000];
 
-    udpClient.init();
-    udpClient.connect();
+    //'tcp' handshake`
+    //create 2 sockets 1 for each clients
+    udpServer.init();
+    p1 = udpServer.recvPacket(-1);
+    p2 = udpServer.recvPacket(-1);
+    //send to player 1 "you are player 1"
+    //send to player 2 "you are player 2"
+    //make sure both client knows which player they are and recv'd the msg
 	
 	// setup window
 	
@@ -653,6 +660,11 @@ int main()
 			updateClock.restart();
 			sf::Time frameTime = sf::milliseconds(1000/60);
 			if (victory == 0) {
+
+                //server recv stuff from both player here
+                //2 recv calls 1 for each socket.
+                //
+
 				player1.setAnimation(getCurrentAnimation(player1, false));
 
 				player1.setState(getCurrentState(player1, static_cast<State>(player1.getCurrState()), event));
@@ -670,9 +682,6 @@ int main()
 				player2.movePosition();
 				p2V = newVelocity;
                 
-                char a[] = "sup";
-                udpClient.sendPacket(a);
-
 				hammer1.setTeam(teamList[0]);
 
 				hammer1.setAnimation(getCurrentAnimation(hammer1, true));
@@ -701,9 +710,8 @@ int main()
 				checkCollision(player1, hammer2,2);
 				checkCollision(player2, hammer2,2);
 
-                char b[100000];
-                b = udpClient.recvPacket(1000); 
-                //check error
+
+                //send to both player the same info
 				
 			}
 			else {
