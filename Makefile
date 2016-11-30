@@ -11,7 +11,7 @@
 #
 
 CC = g++ #Compiler to use.
-CFLAGS = -g -Wall #some useful g++ flags when compiling.
+CFLAGS = -g -Wall -std=c++11 #some useful g++ flags when compiling.
 
 all: client server
 
