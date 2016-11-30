@@ -13,9 +13,9 @@
 CC = g++ #Compiler to use.
 CFLAGS = -g -Wall #some useful g++ flags when compiling.
 
-all: main
+all: client server
 
-main: AnimatedSprite.o Animation.o UDPSystem.o main.o
+client: AnimatedSprite.o Animation.o UDPSystem.o main.o
 	$(CC) $(CFLAGS) -o client AnimatedSprite.o Animation.o UDPSystem.o main.o \
 		-lpthread -lsfml-graphics -lsfml-window -lsfml-system
 

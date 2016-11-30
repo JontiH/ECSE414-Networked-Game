@@ -590,16 +590,16 @@ int main()
                 if(playerMessage.msg != NULL)
                 {
                     std::string jsonString(playerMessage.msg);
-                    json jInput = json::parse(jsonString);
+                    auto jsonInput = json::parse(jsonString);
 
-                    if(playerMessage.player == 1)
-                    {
-                        p1Input = jInput["input"];
-                    }
-                    else
-                    {
-                        p2Input = jInput["input"];
-                    }
+                   // if(playerMessage.player == 1)
+                   // {
+                   //     p1Input = jInput["input"];
+                   // }
+                   // else
+                   // {
+                   //     p2Input = jInput["input"];
+                   // }
                 }
             
 
@@ -614,7 +614,6 @@ int main()
 
 				player2.setAnimation(getCurrentAnimation(player2, false));
 				player2.setState(getCurrentState(player2,p2Input));
-				player2.setState(p2State);
 				player2.update(frameTime);
 				newVelocity = updatePlayer(player2, frameTime);
 				player2.setVelocity(newVelocity.first, newVelocity.second);
@@ -625,7 +624,7 @@ int main()
 				hammer1.setTeam(teamList[0]);
 
 				hammer1.setAnimation(getCurrentAnimation(hammer1, true));
-				hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
+				//hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
 				hammer1.update(frameTime);
 				newVelocity = updateHammer(hammer1, frameTime,1);
 
@@ -640,7 +639,7 @@ int main()
 
 				hammer2.setTeam(teamList[1]);
 				hammer2.setAnimation(getCurrentAnimation(hammer2, true));
-				hammer2.setState(getCurrentState(hammer2, static_cast<State>(hammer2.getCurrState()), event));
+				//hammer2.setState(getCurrentState(hammer2, static_cast<State>(hammer2.getCurrState()), event));
 				hammer2.update(frameTime);
 				newVelocity = updateHammer(hammer2, frameTime,2);
 

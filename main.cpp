@@ -691,9 +691,6 @@ int main(int argc, char *argv[])
                 //receive server's game state
 				serverMessage = udpClient.recvPacket(TIMEOUT);
 
-                printf("server message is %s\n\n",serverMessage.msg);
-
-
 				correctErrors();
 				
 			}
