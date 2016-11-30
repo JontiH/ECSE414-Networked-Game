@@ -16,7 +16,11 @@ CFLAGS = -g -Wall #some useful g++ flags when compiling.
 all: main
 
 main: AnimatedSprite.o Animation.o UDPSystem.o main.o
-	$(CC) $(CFLAGS) -o game AnimatedSprite.o Animation.o UDPSystem.o main.o \
+	$(CC) $(CFLAGS) -o client AnimatedSprite.o Animation.o UDPSystem.o main.o \
+		-lpthread -lsfml-graphics -lsfml-window -lsfml-system
+
+server: AnimatedSprite.o Animation.o UDPSystem.o server.o
+	$(CC) $(CFLAGS) -o server AnimatedSprite.o Animation.o UDPSystem.o server.o \
 		-lpthread -lsfml-graphics -lsfml-window -lsfml-system
 
 AnimatedSprite.o: AnimatedSprite.cpp AnimatedSprite.hpp
@@ -25,11 +29,14 @@ AnimatedSprite.o: AnimatedSprite.cpp AnimatedSprite.hpp
 Animation.o: Animation.cpp Animation.hpp
 	$(CC) $(CFLAGS) -c Animation.cpp
 
-UDPSystem.o: UDPSystem.cpp UDPSystem.hpp
-	$(CC) $(CFLAGS) -c UDPSystem.cpp
+UDPSystem.o: ./UDP/UDPSystem.cpp ./UDP/UDPSystem.hpp
+	$(CC) $(CFLAGS) -c ./UDP/UDPSystem.cpp
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
+
+server.o: server.cpp
+	$(CC) $(CFLAGS) -c server.cpp
 
 clean:
 	rm -f game *.o *~ *.gch

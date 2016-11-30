@@ -65,9 +65,8 @@ void UDPSystem::init()
     clientIP[1][0] = '\0';
 }
 
-UDPSystem::messageContainer UDPSystem::recvPacket(int timeOutValue)
+messageContainer UDPSystem::recvPacket(int timeOutValue)
 {
-    UDPSystem::messageContainer playerMessage;
     playerMessage.player = 0;
     playerMessage.msg = NULL;
 
@@ -184,6 +183,19 @@ void UDPSystem::connect()
     {   
         perror("UDPSystem::connect()");
     }
+}
+
+int UDPSystem::getClients()
+{
+    if(clientIP[0][0] != '\0')
+    {
+        if(clientIP[1][0] != '\0')
+        {
+            return 2;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 void UDPSystem::closeSocket()

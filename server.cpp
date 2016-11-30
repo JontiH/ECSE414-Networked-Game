@@ -7,10 +7,20 @@
 #include <iostream>
 #include <math.h>  
 
+#include "json.hpp"  
+using json = nlohmann::json;
+
+
 #include "./UDP/UDPSystem.hpp"
+
+#define TIMEOUT 10000 //timeout value for recvPacket()
+#define TO_BOTH_PLAYER 0 //used in sendPacket()
 
 
 enum State { walkLeft, walkRight, crouchLeft, crouchRight , idleLeft, idleRight, jumpLeft, jumpRight, chuckLeft, chuckRight , die };
+enum Input { none, up, left, right, down, action, enter};
+
+
 float FLOOR_HEIGHT = 100.0;
 
 #define PI 3.14159265
@@ -50,22 +60,19 @@ sf::Vector2i screenDimensions(800, 600);
 sf::RectangleShape floorBox(sf::Vector2f(screenDimensions.x, FLOOR_HEIGHT));
 sf::RectangleShape halfLine(sf::Vector2f(10, FLOOR_HEIGHT));
 
-//create udpsystem object to connect to server
-char serverPort[] = "6767";
-UDPSystem udpServer(NULL, serverPort);
 
-
-State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event event)  {
+State getCurrentState(AnimatedSprite sprite, Input input)  {
 
 	bool noKeyWasPressed = true;
-	State currentState = previousState;
+	State previousState = static_cast<State>(sprite.getCurrState());
+	State currentState;
 	// if a key was pressed set the correct animation and move correctly
 
 	if (sprite.getTeam() == 1) {
 		if (currentState == die) {
 			return currentState;
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		if (input == action)
 		{
 
 			if (previousState == chuckLeft || previousState == chuckRight) {
@@ -90,7 +97,7 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 			noKeyWasPressed = false;
 		}
 
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		else if (input == down)
 		{
 
 			if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
@@ -102,7 +109,7 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 
 			noKeyWasPressed = false;
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		else if (input == left)
 		{
 			if ((currentState == jumpLeft) || (currentState == jumpRight)) {
 				currentState = jumpLeft;
@@ -115,7 +122,7 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 
 			noKeyWasPressed = false;
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		else if (input == right)
 		{
 			if ((currentState == jumpRight) || (currentState == jumpRight)) {
 				currentState = jumpRight;
@@ -127,7 +134,7 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 				currentState = walkRight;
 			noKeyWasPressed = false;
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		else if (input == up)
 		{
 			if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight)) {
 				currentState = jumpRight;
@@ -139,7 +146,7 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 		}
 
 		// if no key was pressed stop the animation
-		else if (noKeyWasPressed)
+		else if (input == none)
 		{
 
 
@@ -150,96 +157,6 @@ State getCurrentState(AnimatedSprite sprite, State previousState, sf::Event even
 				currentState = idleRight;
 		}
 	}
-	else {
-		if (currentState == die) {
-			return currentState;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad0))
-		{
-
-			if (previousState == chuckLeft || previousState == chuckRight) {
-				chuckList[sprite.getTeam() - 1] = 0;
-				currentState = previousState;
-			}
-			else {
-
-				if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight)) {
-
-					currentState = chuckRight;
-
-					chuckList[sprite.getTeam() - 1] = 2;
-				}
-				else {
-
-					currentState = chuckLeft;
-					chuckList[sprite.getTeam() - 1] = 1;
-				}
-			}
-
-			noKeyWasPressed = false;
-		}
-
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad5))
-		{
-
-			if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
-				currentState = crouchLeft;
-			}
-			else {
-				currentState = crouchRight;
-			}
-
-			noKeyWasPressed = false;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad4))
-		{
-			if ((currentState == jumpLeft) || (currentState == jumpRight)) {
-				currentState = jumpLeft;
-			}
-			else if (currentState == crouchRight) {
-				currentState = crouchLeft;
-			}
-			else
-				currentState = walkLeft;
-
-			noKeyWasPressed = false;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::  Numpad6))
-		{
-			if ((currentState == jumpRight) || (currentState == jumpRight)) {
-				currentState = jumpRight;
-			}
-			else if (currentState == crouchLeft) {
-				currentState = crouchRight;
-			}
-			else
-				currentState = walkRight;
-			noKeyWasPressed = false;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad8))
-		{
-			if ((currentState == idleRight) || (currentState == walkRight) || (currentState == crouchRight) || (currentState == idleRight) || (currentState == jumpRight)) {
-				currentState = jumpRight;
-			}
-			else
-				currentState = jumpLeft;
-			noKeyWasPressed = false;
-
-		}
-
-		// if no key was pressed stop the animation
-		else if (noKeyWasPressed)
-		{
-
-
-			if ((currentState == walkLeft) || (currentState == idleLeft) || (currentState == chuckLeft) || (currentState == jumpLeft) || (currentState == crouchLeft)) {
-				currentState = idleLeft;
-			}
-			else
-				currentState = idleRight;
-		}
-	}
-	
 	
 	return currentState;
 }
@@ -570,18 +487,22 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, 
 
 int main()
 { 
-    char p1[10000];
-    char p2[10000];
-
-    //'tcp' handshake`
-    //create 2 sockets 1 for each clients
+    //create server object and initialize it
+    char serverPort[] = "6767";
+    UDPSystem udpServer(NULL, serverPort);
     udpServer.init();
-    p1 = udpServer.recvPacket(-1);
-    p2 = udpServer.recvPacket(-1);
-    //send to player 1 "you are player 1"
-    //send to player 2 "you are player 2"
-    //make sure both client knows which player they are and recv'd the msg
-	
+    messageContainer playerMessage;
+
+    //udp handshake
+    while(udpServer.getClients() != 2)
+    {
+        playerMessage = udpServer.recvPacket(TIMEOUT);
+    }
+    char ack[] = "ack";
+    udpServer.sendPacket(TO_BOTH_PLAYER, ack);
+
+
+
 	// setup window
 	
 	floorBox.setFillColor(sf::Color(100, 250, 50));
@@ -643,6 +564,10 @@ int main()
 
 	sf::Clock updateClock;
 
+
+    Input p1Input = none;
+    Input p2Input = none;
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -661,13 +586,26 @@ int main()
 			sf::Time frameTime = sf::milliseconds(1000/60);
 			if (victory == 0) {
 
-                //server recv stuff from both player here
-                //2 recv calls 1 for each socket.
-                //
+                playerMessage = udpServer.recvPacket(TIMEOUT);
+                if(playerMessage.msg != NULL)
+                {
+                    std::string jsonString(playerMessage.msg);
+                    json jInput = json::parse(jsonString);
+
+                    if(playerMessage.player == 1)
+                    {
+                        p1Input = jInput["input"];
+                    }
+                    else
+                    {
+                        p2Input = jInput["input"];
+                    }
+                }
+            
 
 				player1.setAnimation(getCurrentAnimation(player1, false));
 
-				player1.setState(getCurrentState(player1, static_cast<State>(player1.getCurrState()), event));
+				player1.setState(getCurrentState(player1,p1Input));
 				player1.update(frameTime);
 				newVelocity = updatePlayer(player1, frameTime);
 				player1.setVelocity(newVelocity.first, newVelocity.second);
@@ -675,12 +613,14 @@ int main()
 				p1V = newVelocity;
 
 				player2.setAnimation(getCurrentAnimation(player2, false));
-				player2.setState(getCurrentState(player2, static_cast<State>(player2.getCurrState()), event));
+				player2.setState(getCurrentState(player2,p2Input));
+				player2.setState(p2State);
 				player2.update(frameTime);
 				newVelocity = updatePlayer(player2, frameTime);
 				player2.setVelocity(newVelocity.first, newVelocity.second);
 				player2.movePosition();
 				p2V = newVelocity;
+
                 
 				hammer1.setTeam(teamList[0]);
 
@@ -712,7 +652,8 @@ int main()
 
 
                 //send to both player the same info
-				
+                char sup[] = "sup";
+			    udpServer.sendPacket(TO_BOTH_PLAYER,sup);	
 			}
 			else {
 
@@ -749,13 +690,13 @@ int main()
 
 			// inside the main loop, between window.clear() and window.display()
 
-			window.draw(player1);
-			window.draw(player2);
-			window.draw(hammer1);
-			window.draw(hammer2);
-			window.draw(floorBox);
-			window.draw(halfLine);
-			window.draw(sideText);
+			//window.draw(player1);
+			//window.draw(player2);
+			//window.draw(hammer1);
+			//window.draw(hammer2);
+			//window.draw(floorBox);
+			//window.draw(halfLine);
+			//window.draw(sideText);
 			if (victory != 0) {
 				window.draw(endText);
 			}

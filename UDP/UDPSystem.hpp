@@ -17,6 +17,11 @@
 #define BUFFER_LEN 5000
 #define SEND_TIMEOUT 10000
 
+struct messageContainer{
+    int player;
+    char *msg;
+};
+
 class UDPSystem
 {
     int receivingSocket;
@@ -34,6 +39,7 @@ class UDPSystem
     socklen_t client_len = sizeof client_addr;
     socklen_t client_storage_len;
     timeval timeOut;
+    messageContainer playerMessage;
     fd_set readfds;
     fd_set writefds;
 
@@ -42,16 +48,12 @@ class UDPSystem
     int createSocket();
 
 public:
-    //destIP = NULL for server. otherwise it is the server's ip.
+    //destIP = NULL for server. otherwise it is the server's ip for clients.
     explicit UDPSystem(char *destIP, char *portNumber);
-
-    struct messageContainer{
-        int player;
-        char *msg;
-    };
 
     void init();
     void connect();
+    int getClients();
     void sendPacket(int ,char *);
     messageContainer recvPacket(int );
     void closeSocket();
