@@ -69,6 +69,7 @@ messageContainer UDPSystem::recvPacket(int timeOutValue)
 {
     playerMessage.player = 0;
     playerMessage.msg = NULL;
+    m_msg[0] = '\0';
 
     FD_ZERO(&readfds); //clear the set readfds
     FD_SET(receivingSocket, &readfds); //add receivingSocket to the set
@@ -125,7 +126,14 @@ messageContainer UDPSystem::recvPacket(int timeOutValue)
             playerMessage.player = 1;
         }
     }
-    playerMessage.msg = m_msg;
+    if(m_msg[0] == '\0')
+    {
+        playerMessage.msg = NULL;
+    }
+    else
+    {
+        playerMessage.msg = m_msg; 
+    }
     return playerMessage;
 }
 
@@ -170,7 +178,7 @@ void UDPSystem::sendPacket(int player, char *msg)
 
 void UDPSystem::connect()
 {
-    char tempmsg[] = "start";
+    char connectValue[] = "start";
     sockaddr_in initialAddr; 
     socklen_t initialAddrLen = sizeof initialAddr;
     initialAddr.sin_family = AF_INET;
@@ -178,7 +186,7 @@ void UDPSystem::connect()
     inet_pton(AF_INET, m_destIP, &(initialAddr.sin_addr));
     memset(initialAddr.sin_zero, '\0', sizeof initialAddr.sin_zero);
 
-    if(sendto(receivingSocket, tempmsg, strlen(tempmsg), 0, \
+    if(sendto(receivingSocket, connectValue, strlen(connectValue), 0, \
                (sockaddr *)&initialAddr, initialAddrLen) == -1)
     {   
         perror("UDPSystem::connect()");

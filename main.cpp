@@ -543,9 +543,12 @@ int main(int argc, char *argv[])
 
     //UDP "handshake" with server
     do{
+        serverMessage.msg = NULL;
 	    udpClient.connect();
         serverMessage = udpClient.recvPacket(HALF_SEC_TIMEOUT);
     }while(serverMessage.msg == NULL);
+    //here the serverMessage.msg contains either 1 or 2
+    //for player 1 or 2
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
@@ -636,9 +639,7 @@ int main(int argc, char *argv[])
 
 				};
                 std::string jsonString = output.dump();
-                std::vector<char> v(jsonString.length() + 1);
-                std::strcpy(&v[0], jsonString.c_str());
-                char *inputString = &v[0];
+                char *inputString = &jsonString[0];
                 //send input to server
 				udpClient.sendPacket(TO_SERVER,inputString);
 
@@ -744,7 +745,7 @@ int main(int argc, char *argv[])
 		}
 		
 
-		
+    udpClient.closeSocket();		
 
 	return 0;
 }

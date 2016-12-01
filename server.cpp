@@ -14,7 +14,11 @@ using json = nlohmann::json;
 #include "./UDP/UDPSystem.hpp"
 
 #define TIMEOUT 10000 //timeout value for recvPacket()
-#define TO_BOTH_PLAYER 0 //used in sendPacket()
+//TO_* used as param. for sendPacket()
+#define TO_BOTH_PLAYER 0 
+#define TO_PLAYER_ONE 1
+#define TO_PLAYER_TWO 2
+char CONNECT_VALUE[] = "start"; //used to compare msg's content
 
 
 enum State { walkLeft, walkRight, crouchLeft, crouchRight , idleLeft, idleRight, jumpLeft, jumpRight, chuckLeft, chuckRight , die };
@@ -485,10 +489,10 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, 
 
 }
 
-int main()
+int main(int argc, char *argv[])
 { 
     //create server object and initialize it
-    char serverPort[] = "6767";
+    char *serverPort = argv[1];
     UDPSystem udpServer(NULL, serverPort);
     udpServer.init();
     messageContainer playerMessage;
@@ -498,8 +502,11 @@ int main()
     {
         playerMessage = udpServer.recvPacket(TIMEOUT);
     }
-    char ack[] = "ack";
-    udpServer.sendPacket(TO_BOTH_PLAYER, ack);
+    //Server tells both clients which player they are
+    char ack[] = "1";
+    udpServer.sendPacket(TO_PLAYER_ONE, ack);
+    char ack2[] = "2";
+    udpServer.sendPacket(TO_PLAYER_TWO, ack2);
 
 
 
@@ -586,12 +593,17 @@ int main()
 			sf::Time frameTime = sf::milliseconds(1000/60);
 			if (victory == 0) {
 
+                //take the first packet off the socket's queue
                 playerMessage = udpServer.recvPacket(TIMEOUT);
-                if(playerMessage.msg != NULL)
+                if((strcmp(playerMessage.msg,CONNECT_VALUE) == 0) || playerMessage.msg == NULL)
                 {
-                    std::string jsonString(playerMessage.msg);
-                    auto jsonInput = json::parse(jsonString);
-
+                    //if msg is NULL or a connect() msg then skip this loop
+                    continue;
+                }
+                else
+                {
+                    //std::string jsonString(playerMessage.msg);
+                    //auto jsonInput = json::parse(jsonString);
                    // if(playerMessage.player == 1)
                    // {
                    //     p1Input = jInput["input"];
@@ -651,8 +663,11 @@ int main()
 
 
                 //send to both player the same info
-                char sup[] = "sup";
-			    udpServer.sendPacket(TO_BOTH_PLAYER,sup);	
+                json testOutput = {{"ayy", "lmao"}};
+                std::string testOutputString = testOutput.dump();
+                //proper way to convert from string to char* (in c++11)
+                char *testOutputPointer = &testOutputString[0];
+			    udpServer.sendPacket(TO_BOTH_PLAYER,testOutputPointer);	
 			}
 			else {
 
