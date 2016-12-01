@@ -10,18 +10,19 @@
 #	4)Type "make clean" without quote to remove all .o and the 'game' files
 #
 
-CC = g++ #Compiler to use.
-CFLAGS = -g -Wall -std=c++11 #some useful g++ flags when compiling.
+CC =g++#Compiler to use.
+CFLAGS =-g -Wall#some useful g++ flags when compiling.
 
 all: client server
+	rm -f *.o *~ *.[g][c][h]*
 
 client: AnimatedSprite.o Animation.o UDPSystem.o main.o
 	$(CC) $(CFLAGS) -o client AnimatedSprite.o Animation.o UDPSystem.o main.o \
-		-lpthread -lsfml-graphics -lsfml-window -lsfml-system
+		-lsfml-graphics -lsfml-window -lsfml-system
 
 server: AnimatedSprite.o Animation.o UDPSystem.o server.o
 	$(CC) $(CFLAGS) -o server AnimatedSprite.o Animation.o UDPSystem.o server.o \
-		-lpthread -lsfml-graphics -lsfml-window -lsfml-system
+		-lsfml-graphics -lsfml-window -lsfml-system
 
 AnimatedSprite.o: AnimatedSprite.cpp AnimatedSprite.hpp
 	$(CC) $(CFLAGS) -c AnimatedSprite.cpp
@@ -39,6 +40,6 @@ server.o: server.cpp
 	$(CC) $(CFLAGS) -c server.cpp
 
 clean:
-	rm -f game *.o *~ *.gch
+	rm -f game client server *.o *~ *.[g][c][h]*
 
 
