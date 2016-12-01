@@ -1,7 +1,5 @@
 a.out
 *.[oa]
-server
-client
 game
 *.gch
 test*
