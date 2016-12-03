@@ -693,22 +693,22 @@ int main(int argc, char *argv[])
 			else {
 
 
-				// select the font
-				endText.setFont(font); // font is a sf::Font						// set the string to display
-				if (victory == 1) {
-					endText.setString("YOU WIN!!");
+				//// select the font
+				//endText.setFont(font); // font is a sf::Font						// set the string to display
+				//if (victory == 1) {
+				//	endText.setString("YOU WIN!!");
 
-				}
-				else {
-					endText.setString("YOU LOSE :(");
-				}
-				// set the character size
-				endText.setCharacterSize(100); // in pixels, not point
-				endText.setFillColor(sf::Color(255, 0, 0));
-				// set the text style
-				endText.setStyle(sf::Text::Bold);
+				//}
+				//else {
+				//	endText.setString("YOU LOSE :(");
+				//}
+				//// set the character size
+				//endText.setCharacterSize(100); // in pixels, not point
+				//endText.setFillColor(sf::Color(255, 0, 0));
+				//// set the text style
+				//endText.setStyle(sf::Text::Bold);
 
-				endText.setPosition(screenDimensions.x / 6, screenDimensions.y / 8);
+				//endText.setPosition(screenDimensions.x / 6, screenDimensions.y / 8);
 
 			}
 
@@ -717,7 +717,7 @@ int main(int argc, char *argv[])
 
 
 			// draw
-			window.clear();
+			//window.clear();
 
 
 
@@ -732,11 +732,11 @@ int main(int argc, char *argv[])
 			//window.draw(floorBox);
 			//window.draw(halfLine);
 			//window.draw(sideText);
-			if (victory != 0) {
-				window.draw(endText);
-			}
+			//if (victory != 0) {
+			//	window.draw(endText);
+			//}
 
-			window.display();
+			//window.display();
 		}
 		
 
