@@ -696,8 +696,8 @@ int main(int argc, char *argv[])
                 //receive server's game state
 				serverMessage = udpClient.recvPacket(TIMEOUT);
 
-	            player1.changePos(output["p1X"], output["p1Y"]);
-                player1.setVelocity(output["p1VX"], output["p1VY"]);
+	            //player1.changePos(output["p1X"], output["p1Y"]);
+                //player1.setVelocity(output["p1VX"], output["p1VY"]);
 			}
 			else {
 

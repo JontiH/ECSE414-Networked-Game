@@ -667,14 +667,14 @@ int main(int argc, char *argv[])
                 //send to both player the same info
                 json output =
                 {
-                    {"h1X", hammer1.getPosX},
-                    {"h1Y", hammer1.getPosY},
-                    {"h2X", hammer2.getPosX},
-                    {"h2Y", hammer2.getPosY},
-                    {"p1X", player1.getPosX},
-                    {"p1Y", player1.getPosY},
-                    {"p2X", player2.getPosX},
-                    {"p2Y", player2.getPosY},
+                    {"h1X", hammer1.getPosX()},
+                    {"h1Y", hammer1.getPosY()},
+                    {"h2X", hammer2.getPosX()},
+                    {"h2Y", hammer2.getPosY()},
+                    {"p1X", player1.getPosX()},
+                    {"p1Y", player1.getPosY()},
+                    {"p2X", player2.getPosX()},
+                    {"p2Y", player2.getPosY()},
                     {"p1VX", p1V.first},
                     {"p2VX", p2V.first},
                     {"h1VX", h1V.first},
