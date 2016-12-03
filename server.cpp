@@ -57,7 +57,7 @@ int chuckList[2] = { 0 };
 int teamList[2] = { 0 };
 int victory = 0;
 
-std::pair<float, float> p1V, p2V;
+std::pair<float, float> p1V, p2V, h1V, h2V;
 
 
 sf::Vector2i screenDimensions(800, 600);
@@ -642,6 +642,7 @@ int main(int argc, char *argv[])
 
 				hammer1.setVelocity(newVelocity.first, newVelocity.second);
 				hammer1.movePosition();
+                h1V = newVelocity;
 
 				checkCollision(player1, hammer1,1);
 				checkCollision(player2, hammer1,1);
@@ -657,17 +658,37 @@ int main(int argc, char *argv[])
 
 				hammer2.setVelocity(newVelocity.first, newVelocity.second);
 				hammer2.movePosition();
+                h2V = newVelocity;
 
 				checkCollision(player1, hammer2,2);
 				checkCollision(player2, hammer2,2);
 
 
                 //send to both player the same info
-                json testOutput = {{"ayy", "lmao"}};
-                std::string testOutputString = testOutput.dump();
+                json output =
+                {
+                    {"h1X", hammer1.getPosX},
+                    {"h1Y", hammer1.getPosY},
+                    {"h2X", hammer2.getPosX},
+                    {"h2Y", hammer2.getPosY},
+                    {"p1X", player1.getPosX},
+                    {"p1Y", player1.getPosY},
+                    {"p2X", player2.getPosX},
+                    {"p2Y", player2.getPosY},
+                    {"p1VX", p1V.first},
+                    {"p2VX", p2V.first},
+                    {"h1VX", h1V.first},
+                    {"h2VX", h2V.first},
+                    {"p1VY", p1V.second},
+                    {"p2VY", p2V.second},
+                    {"h1VY", h1V.second},
+                    {"h2VY", h2V.second}
+                };
+                    
+                std::string stringOutput = output.dump();
                 //proper way to convert from string to char* (in c++11)
-                char *testOutputPointer = &testOutputString[0];
-			    udpServer.sendPacket(TO_BOTH_PLAYER,testOutputPointer);	
+                char *charOutput = &stringOutput[0];
+			    udpServer.sendPacket(TO_BOTH_PLAYER,charOutput);	
 			}
 			else {
 

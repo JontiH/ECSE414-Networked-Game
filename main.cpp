@@ -55,7 +55,7 @@ int teamList[2] = { 0 };
 int victory = 0;
 bool playerSideLeft = true;
 bool playerTeamRight = true;
-std::pair<float, float> p1V, p2V;
+std::pair<float, float> p1V, p2V, h1V, h2V;
 
 
 
@@ -640,7 +640,6 @@ int main(int argc, char *argv[])
 				};
                 std::string jsonString = output.dump();
                 char *inputString = &jsonString[0];
-                //send input to server
 				udpClient.sendPacket(TO_SERVER,inputString);
 
 				player1.setState(getCurrentState(player1,p1Input));
@@ -663,6 +662,9 @@ int main(int argc, char *argv[])
 
 				hammer1.setTeam(teamList[0]);
 
+                //yer1.changePos(output["p1X"], output["p1Y"]);
+                //              player1.setVelocity(output["p1VX"], output["p1VY"]);player1.changePos(output["p1X"], output["p1Y"]);
+                //                              player1.setVelocity(output["p1VX"], output["p1VY"]);send input to server
 				hammer1.setAnimation(getCurrentAnimation(hammer1, true));
 				//hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
 				hammer1.update(frameTime);
@@ -670,6 +672,7 @@ int main(int argc, char *argv[])
 
 				hammer1.setVelocity(newVelocity.first, newVelocity.second);
 				hammer1.movePosition();
+                h1V = newVelocity;
 
 				checkCollision(player1, hammer1,1);
 				checkCollision(player2, hammer1,1);
@@ -685,6 +688,7 @@ int main(int argc, char *argv[])
 
 				hammer2.setVelocity(newVelocity.first, newVelocity.second);
 				hammer2.movePosition();
+                h2V = newVelocity;
 
 				checkCollision(player1, hammer2,2);
 				checkCollision(player2, hammer2,2);
@@ -692,8 +696,8 @@ int main(int argc, char *argv[])
                 //receive server's game state
 				serverMessage = udpClient.recvPacket(TIMEOUT);
 
-				correctErrors();
-				
+	            player1.changePos(output["p1X"], output["p1Y"]);
+                player1.setVelocity(output["p1VX"], output["p1VY"]);
 			}
 			else {
 
