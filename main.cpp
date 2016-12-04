@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
 				player1.setAnimation(getCurrentAnimation(player1, false));
 				player2.setAnimation(getCurrentAnimation(player2, false));
 
-				playerInput = getCurrentInput(event);
+				Input playerInput = getCurrentInput(event);
 
 				json output = 
 				{
