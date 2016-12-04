@@ -638,13 +638,14 @@ int main(int argc, char *argv[])
 			sf::Time frameTime = sf::milliseconds(1000/60);
 			if (victory == 0) {
 				player1.setAnimation(getCurrentAnimation(player1, false));
+				player2.setAnimation(getCurrentAnimation(player2, false));
 
-				Input p1Input = getCurrentInput(event);
+				Input = getCurrentInput(event);
 
 				json output = 
 				{
 					{"ack", ackCounter},
-					{"input" , p1Input}
+					{"input" , playerInput}
 
 				};
                 std::string outputString = output.dump();
@@ -659,20 +660,30 @@ int main(int argc, char *argv[])
                     printf("didnt send message: msg = NULL");
                 }
 
+
+				if (ps == 1) {
+					player1.setState(getCurrentState(player1, playerInput));
+					State p2State = interpolateState();
+					player2.setState(p2State);
+				}
+				else if (ps == 2) {
+					player2.setState(getCurrentState(player2, playerInput));
+					State p1State = interpolateState();
+					player1.setState(p1State);
+				}
+
 				printf("player state -> %i \n", getCurrentState(player1,p1Input));
 				printf("player input is -> %i \n", p1Input);
-				player1.setState(getCurrentState(player1,p1Input));
+				
 				
 				player1.update(frameTime);
 				newVelocity = updatePlayer(player1, frameTime);
-				printf("player velocity -> %f \n", newVelocity.first);
+				//printf("player velocity -> %f \n", newVelocity.first);
 				player1.setVelocity(newVelocity.first, newVelocity.second);
 				player1.movePosition();
 				p1V = newVelocity;
 
-				player2.setAnimation(getCurrentAnimation(player2, false));
-				State p2State = interpolateState();
-				player2.setState(p2State);
+				
 				player2.update(frameTime);
 				newVelocity = updatePlayer(player2, frameTime);
 				player2.setVelocity(newVelocity.first, newVelocity.second);
