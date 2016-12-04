@@ -25,6 +25,7 @@ int UDPSystem::getInfo()
 
 int UDPSystem::createSocket()
 {
+    int option = 1;
     for(i = receivingInfo; i != NULL; i = i->ai_next)
     {
         if((receivingSocket = socket(i->ai_family, i->ai_socktype, i->ai_protocol)) == -1)
@@ -33,6 +34,9 @@ int UDPSystem::createSocket()
             continue;
         }
         fcntl(receivingSocket, F_SETFL, O_NONBLOCK);
+        if (setsockopt(receivingSocket,SOL_SOCKET,SO_REUSEADDR,&option,sizeof option) == -1) {
+                perror("UDPSystem::setsockopt():");
+        } 
         if(bind(receivingSocket, i->ai_addr, i->ai_addrlen) == -1)
         {
             perror("Warning: UDPSystem::bind():");
@@ -132,6 +136,7 @@ messageContainer UDPSystem::recvPacket(int timeOutValue)
     }
     else
     {
+        m_msg[msgValue] = '\0';
         playerMessage.msg = m_msg; 
     }
     return playerMessage;

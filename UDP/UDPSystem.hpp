@@ -14,7 +14,7 @@
 #include <netdb.h>
 #include <fcntl.h>
 
-#define BUFFER_LEN 5000
+#define BUFFER_LEN 500000
 #define SEND_TIMEOUT 10000
 
 struct messageContainer{

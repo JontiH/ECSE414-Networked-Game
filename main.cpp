@@ -528,15 +528,11 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, 
 
 }
 
-void correctErrors() {
-
-}
-
 int main(int argc, char *argv[])
 { 
     //initialize UDPSystem
     char *serverIP = argv[1];
-    char serverPort[] = "6767";
+    char *serverPort = argv[2];
     UDPSystem udpClient(serverIP, serverPort);
 	udpClient.init();
     messageContainer serverMessage;
@@ -544,6 +540,7 @@ int main(int argc, char *argv[])
     //UDP "handshake" with server
     do{
         serverMessage.msg = NULL;
+        printf("trying to connect to server...\n");
 	    udpClient.connect();
         serverMessage = udpClient.recvPacket(HALF_SEC_TIMEOUT);
     }while(serverMessage.msg == NULL);
@@ -635,12 +632,22 @@ int main(int argc, char *argv[])
 				json output = 
 				{
 					{"ack", ackCounter},
-					{"input" , p1Input }
+					{"input" , p1Input}
 
 				};
-                std::string jsonString = output.dump();
-                char *inputString = &jsonString[0];
-				udpClient.sendPacket(TO_SERVER,inputString);
+                std::string outputString = output.dump();
+                char *outputChar = &outputString[0];
+                if(outputChar != NULL)
+                {
+                    std::cout << "sending packet: " << outputString << std::endl;
+				    udpClient.sendPacket(TO_SERVER,outputChar);
+                    outputString.clear();
+                }
+                else
+                {
+                    printf("didnt send message: msg = NULL");
+                    outputString.clear();
+                }
 
 				player1.setState(getCurrentState(player1,p1Input));
 				player1.update(frameTime);
@@ -695,8 +702,18 @@ int main(int argc, char *argv[])
 
                 //receive server's game state
 				serverMessage = udpClient.recvPacket(TIMEOUT);
-                std::string serverString(serverMessage.msg);
-                auto serverJson = json::parse(serverString);
+                if(serverMessage.msg != NULL)
+                {
+                    std::string serverString(serverMessage.msg);
+                    //auto serverJson = json::parse(serverString);
+                    std::cout << "received packet: " << serverMessage.msg << std::endl;
+                    serverString.clear();
+                    
+                }
+                else
+                {
+                    printf("didnt receive anything.\n");
+                }
 
 	            //player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
                 //player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
