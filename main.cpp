@@ -107,8 +107,8 @@ Input getCurrentInput(sf::Event event) {
 State getCurrentState(AnimatedSprite sprite, Input input)  {
 
 	bool noKeyWasPressed = true;
-	State previousState = static_cast<State>(sprite.getCurrState());
-	State currentState;
+	State  currentState = static_cast<State>(sprite.getCurrState());
+	State previousState = static_cast<State>(sprite.getPrevState());
 	// if a key was pressed set the correct animation and move correctly
 
 	if (sprite.getTeam() == 1) {
