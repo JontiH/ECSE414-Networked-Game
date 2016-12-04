@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
     
     char playerSide[2] = {*serverMessage.msg};
     playerSide[1] = '\0';
-    if(playerSide[0] == 1)
+    if()
     {
         //TODO: set player 1
     }
@@ -558,7 +558,7 @@ int main(int argc, char *argv[])
         //TODO: error debug
     }
 
-	playerSideLeft = (serverMessage.msg == 1);
+	playerSideLeft = (playerSide[0] == 1);
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
