@@ -672,8 +672,8 @@ int main(int argc, char *argv[])
 					player1.setState(p1State);
 				}
 
-				printf("player state -> %i \n", getCurrentState(player1,p1Input));
-				printf("player input is -> %i \n", p1Input);
+				printf("player state -> %i \n", getCurrentState(player1,playerInput));
+				printf("player input is -> %i \n", playerInput);
 				
 				
 				player1.update(frameTime);
