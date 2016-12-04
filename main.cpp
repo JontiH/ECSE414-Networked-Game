@@ -671,7 +671,9 @@ int main(int argc, char *argv[])
 					State p1State = interpolateState();
 					player1.setState(p1State);
 				}
-				else return 0;
+				else {
+					printf("ERROR OMG EVERTHING IS GOING WRONG ARRRRRGHH \n\n");
+				}
 			
 				
 				
