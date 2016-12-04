@@ -544,11 +544,11 @@ int main(int argc, char *argv[])
     
     char playerSide[2] = {*serverMessage.msg};
     playerSide[1] = '\0';
-    if(playerSide[0] == 1)
+    if(playerSide[0] == '1')
     {
         //TODO: set player 1
     }
-    else if(playerSide[0] == 2)
+    else if(playerSide[0] == '2')
     {
         //TODO: set player 2
     }
