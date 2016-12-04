@@ -53,7 +53,7 @@ int chuckList[2] = { 0 };
 int teamList[2] = { 0 };
 
 int victory = 0;
-int playerSide;
+int ps;
 std::pair<float, float> p1V, p2V, h1V, h2V;
 
 
@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
         //TODO: error debug
     }
 
-	playerside = playerSide[0];
+	ps = playerSide[0];
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
@@ -602,11 +602,11 @@ int main(int argc, char *argv[])
 	setupAnimations();
 
 	// set up AnimatedSprite
-	AnimatedSprite player1(sf::seconds(1 / 25.f), playerSide);
-	player1.changePos(screenDimensions.x/2 -300 + 600*(playerSide == 2), screenDimensions.y*2/3);
+	AnimatedSprite player1(sf::seconds(1 / 25.f), ps);
+	player1.changePos(screenDimensions.x/2 -300 + 600*(ps == 2), screenDimensions.y*2/3);
 
-	AnimatedSprite player2(sf::seconds(1 / 25.f), ((playerSide+1 )%2)+1);
-	player2.changePos(screenDimensions.x / 2 + 300 - 600 * (playerSide == 2), screenDimensions.y *2/3);
+	AnimatedSprite player2(sf::seconds(1 / 25.f), ((ps+1 )%2)+1);
+	player2.changePos(screenDimensions.x / 2 + 300 - 600 * (ps == 2), screenDimensions.y *2/3);
 
 	AnimatedSprite hammer1(sf::seconds(1 / 25.f), 0);
 	hammer1.changePos(screenDimensions.x / 2 - 100, screenDimensions.y* 2/3);
