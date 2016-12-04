@@ -577,6 +577,7 @@ int main(int argc, char *argv[])
 
     Input p1Input = none;
     Input p2Input = none;
+	int jsonInt = 0;
 
 
 
@@ -609,16 +610,16 @@ int main(int argc, char *argv[])
                 {
                     std::string jsonString(playerMessage.msg);
 			std::cout << "got : " << jsonString << std::endl;
-			jsonString.clear();
-                    //auto jsonInput = json::parse(jsonString);
-                   // if(playerMessage.player == 1)
-                   // {
-                   //     p1Input = jInput["input"];
-                   // }
-                   // else
-                   // {
-                   //     p2Input = jInput["input"];
-                   // }
+                    auto jsonInput = json::parse(jsonString);
+                    if(playerMessage.player == 1)
+                    {
+			jsonInt = jsonInput["input"];
+                        p1Input = static_cast<Input>(jsonInt);
+                    }
+                    else
+                    {
+                    //    p2Input = jsonInput["input"];
+                    }
                 }
             
 
@@ -696,12 +697,10 @@ int main(int argc, char *argv[])
 		if(charOutput != NULL)
 		{
 			    udpServer.sendPacket(1,charOutput);	
-				stringOutput.clear();
 			std::cout << "packet sent" << std::endl;
 		}
 		else
 		{
-			stringOutput.clear();
 			std::cout << "not sent" << std::endl;
 		}
 			}
