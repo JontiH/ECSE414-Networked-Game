@@ -544,8 +544,21 @@ int main(int argc, char *argv[])
 	    udpClient.connect();
         serverMessage = udpClient.recvPacket(HALF_SEC_TIMEOUT);
     }while(serverMessage.msg == NULL);
-    //here the serverMessage.msg contains either 1 or 2
-    //for player 1 or 2
+    
+    char playerSide[2] = {*serverMessage.msg};
+    playerSide[1] = '\0';
+    if(playerSide[0] == 1)
+    {
+        //TODO: set player 1
+    }
+    else if(playerSide[0] == 2)
+    {
+        //TODO: set player 2
+    }
+    else
+    {
+        //TODO: error debug
+    }
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
@@ -700,8 +713,8 @@ int main(int argc, char *argv[])
                 {
                     std::string serverString(serverMessage.msg);
                     auto serverJson = json::parse(serverString);
-                    player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
-                    player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
+                    //player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
+                    //player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
                     std::cout << "received packet: " << serverMessage.msg << std::endl;
                     
                 }
