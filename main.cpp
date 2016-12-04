@@ -111,7 +111,7 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 	State previousState = static_cast<State>(sprite.getPrevState());
 	// if a key was pressed set the correct animation and move correctly
 
-	if (sprite.getTeam() == 1) {
+	if (sprite.getTeam() != 0) {
 		if (currentState == die) {
 			return currentState;
 		}
