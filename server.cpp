@@ -498,23 +498,26 @@ int main(int argc, char *argv[])
     messageContainer playerMessage;
 
     //udp handshake
-    while(udpServer.getClients() != 2)
+    while(udpServer.getClients() != 1)
     {
+	printf("waiting for connections...\n");
         playerMessage = udpServer.recvPacket(TIMEOUT);
     }
     //Server tells both clients which player they are
     char ack[] = "1";
-    udpServer.sendPacket(TO_PLAYER_ONE, ack);
+	char *ggg = ack;
+    udpServer.sendPacket(TO_PLAYER_ONE, ggg);
     char ack2[] = "2";
-    udpServer.sendPacket(TO_PLAYER_TWO, ack2);
+    //udpServer.sendPacket(TO_PLAYER_TWO, ack2);
+
 
 
 
 	// setup window
 	
-	floorBox.setFillColor(sf::Color(100, 250, 50));
+//	floorBox.setFillColor(sf::Color(100, 250, 50));
 	floorBox.setPosition(0, screenDimensions.y - FLOOR_HEIGHT);
-	halfLine.setFillColor(sf::Color(250, 0, 0));
+//	halfLine.setFillColor(sf::Color(250, 0, 0));
 	halfLine.setPosition(screenDimensions.x/2, screenDimensions.y - FLOOR_HEIGHT);
 
 	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Animations!");
@@ -540,7 +543,7 @@ int main(int argc, char *argv[])
 	sideText.setString("Your Side");
 	// set the character size
 	sideText.setCharacterSize(24); // in pixels, not point
-	sideText.setFillColor(sf::Color(255, 0, 0));
+//	sideText.setFillColor(sf::Color(255, 0, 0));
 	// set the text style
 	sideText.setStyle(sf::Text::Bold);
 
@@ -575,6 +578,8 @@ int main(int argc, char *argv[])
     Input p1Input = none;
     Input p2Input = none;
 
+
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -592,17 +597,19 @@ int main(int argc, char *argv[])
 			updateClock.restart();
 			sf::Time frameTime = sf::milliseconds(1000/60);
 			if (victory == 0) {
-
                 //take the first packet off the socket's queue
                 playerMessage = udpServer.recvPacket(TIMEOUT);
                 if((strcmp(playerMessage.msg,CONNECT_VALUE) == 0) || playerMessage.msg == NULL)
                 {
                     //if msg is NULL or a connect() msg then skip this loop
+			std::cout << "packet NULL" << std::endl;
                     continue;
                 }
                 else
                 {
-                    //std::string jsonString(playerMessage.msg);
+                    std::string jsonString(playerMessage.msg);
+			std::cout << "got : " << jsonString << std::endl;
+			jsonString.clear();
                     //auto jsonInput = json::parse(jsonString);
                    // if(playerMessage.player == 1)
                    // {
@@ -684,31 +691,39 @@ int main(int argc, char *argv[])
                     {"h1VY", h1V.second},
                     {"h2VY", h2V.second}
                 };
-                    
                 std::string stringOutput = output.dump();
-                //proper way to convert from string to char* (in c++11)
                 char *charOutput = &stringOutput[0];
-			    udpServer.sendPacket(TO_BOTH_PLAYER,charOutput);	
+		if(charOutput != NULL)
+		{
+			    udpServer.sendPacket(1,charOutput);	
+				stringOutput.clear();
+			std::cout << "packet sent" << std::endl;
+		}
+		else
+		{
+			stringOutput.clear();
+			std::cout << "not sent" << std::endl;
+		}
 			}
 			else {
 
 
-				//// select the font
+				// select the font
 				//endText.setFont(font); // font is a sf::Font						// set the string to display
-				//if (victory == 1) {
-				//	endText.setString("YOU WIN!!");
+				if (victory == 1) {
+					endText.setString("YOU WIN!!");
 
-				//}
-				//else {
-				//	endText.setString("YOU LOSE :(");
-				//}
-				//// set the character size
-				//endText.setCharacterSize(100); // in pixels, not point
-				//endText.setFillColor(sf::Color(255, 0, 0));
-				//// set the text style
-				//endText.setStyle(sf::Text::Bold);
+				}
+				else {
+					endText.setString("YOU LOSE :(");
+				}
+				// set the character size
+				endText.setCharacterSize(100); // in pixels, not point
+//				endText.setFillColor(sf::Color(255, 0, 0));
+				// set the text style
+				endText.setStyle(sf::Text::Bold);
 
-				//endText.setPosition(screenDimensions.x / 6, screenDimensions.y / 8);
+				endText.setPosition(screenDimensions.x / 6, screenDimensions.y / 8);
 
 			}
 
@@ -717,7 +732,7 @@ int main(int argc, char *argv[])
 
 
 			// draw
-			//window.clear();
+			window.clear();
 
 
 
@@ -725,18 +740,18 @@ int main(int argc, char *argv[])
 
 			// inside the main loop, between window.clear() and window.display()
 
-			//window.draw(player1);
-			//window.draw(player2);
-			//window.draw(hammer1);
-			//window.draw(hammer2);
-			//window.draw(floorBox);
-			//window.draw(halfLine);
-			//window.draw(sideText);
-			//if (victory != 0) {
-			//	window.draw(endText);
-			//}
+			window.draw(player1);
+			window.draw(player2);
+			window.draw(hammer1);
+			window.draw(hammer2);
+			window.draw(floorBox);
+			window.draw(halfLine);
+			window.draw(sideText);
+			if (victory != 0) {
+				window.draw(endText);
+			}
 
-			//window.display();
+			window.display();
 		}
 		
 
