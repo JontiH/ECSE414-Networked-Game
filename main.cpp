@@ -648,6 +648,7 @@ int main(int argc, char *argv[])
                 }
 
 				player1.setState(getCurrentState(player1,p1Input));
+				printf("player state -> %i", player1.getState());
 				player1.update(frameTime);
 				newVelocity = updatePlayer(player1, frameTime);
 				player1.setVelocity(newVelocity.first, newVelocity.second);
@@ -700,8 +701,8 @@ int main(int argc, char *argv[])
                 {
                     std::string serverString(serverMessage.msg);
                     auto serverJson = json::parse(serverString);
-                    player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
-                    player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
+                    //player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
+                    //player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
                     std::cout << "received packet: " << serverMessage.msg << std::endl;
                     
                 }
