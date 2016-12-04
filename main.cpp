@@ -606,8 +606,8 @@ int main(int argc, char *argv[])
 	AnimatedSprite player1(sf::seconds(1 / 25.f), 1 + !playerSideLeft);
 	player1.changePos(screenDimensions.x/2 -300 + 600*(playerSideLeft), screenDimensions.y*2/3);
 
-	AnimatedSprite player2(sf::seconds(1 / 25.f), 1 + !playerSideLeft);
-	player2.changePos(screenDimensions.x / 2 + 300 + 600 * (playerSideLeft), screenDimensions.y *2/3);
+	AnimatedSprite player2(sf::seconds(1 / 25.f), 1 + playerSideLeft);
+	player2.changePos(screenDimensions.x / 2 + 300 + 600 * (!playerSideLeft), screenDimensions.y *2/3);
 
 	AnimatedSprite hammer1(sf::seconds(1 / 25.f), 0);
 	hammer1.changePos(screenDimensions.x / 2 - 100, screenDimensions.y* 2/3);
