@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
         //TODO: error debug
     }
 
-	ps = playerSide[0];
+	ps = (int)playerSide[0];
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
