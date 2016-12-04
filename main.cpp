@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
 				window.close();
 		}
 		
-		while (updateClock.getElapsedTime().asMilliseconds() < 1000 / 60) {
+		while (updateClock.getElapsedTime().asMilliseconds() < 1000.0 / 60) {
 		}
 			updateClock.restart();
 			sf::Time frameTime = sf::milliseconds(1000/60);
@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
 
 				json output = 
 				{
-					{"ack", ackCounter},
+					{"ack", ackCounter++},
 					{"input" , playerInput}
 
 				};
@@ -671,9 +671,8 @@ int main(int argc, char *argv[])
 					State p1State = interpolateState();
 					player1.setState(p1State);
 				}
-
-				printf("player state -> %i \n", getCurrentState(player1,playerInput));
-				printf("player input is -> %i \n", playerInput);
+				else return 0;
+			
 				
 				
 				player1.update(frameTime);
