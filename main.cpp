@@ -673,6 +673,7 @@ int main(int argc, char *argv[])
 				}
 				else {
 					printf("ERROR OMG EVERTHING IS GOING WRONG ARRRRRGHH \n\n");
+					printf("ps is ->> %i \n", ps);
 				}
 			
 				
