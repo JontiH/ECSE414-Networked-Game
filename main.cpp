@@ -660,11 +660,12 @@ int main(int argc, char *argv[])
                     printf("didnt send message: msg = NULL");
                 }
 
+				printf("player state -> %i \n", getCurrentState(player1,p1Input);
 				player1.setState(getCurrentState(player1,p1Input));
 				
 				player1.update(frameTime);
 				newVelocity = updatePlayer(player1, frameTime);
-				printf("player velocity -> %f", newVelocity.first);
+				printf("player velocity -> %f \n", newVelocity.first);
 				player1.setVelocity(newVelocity.first, newVelocity.second);
 				player1.movePosition();
 				p1V = newVelocity;
