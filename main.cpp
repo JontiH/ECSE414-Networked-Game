@@ -641,12 +641,10 @@ int main(int argc, char *argv[])
                 {
                     std::cout << "sending packet: " << outputString << std::endl;
 				    udpClient.sendPacket(TO_SERVER,outputChar);
-                    outputString.clear();
                 }
                 else
                 {
                     printf("didnt send message: msg = NULL");
-                    outputString.clear();
                 }
 
 				player1.setState(getCurrentState(player1,p1Input));
@@ -668,10 +666,6 @@ int main(int argc, char *argv[])
 				
 
 				hammer1.setTeam(teamList[0]);
-
-                //yer1.changePos(output["p1X"], output["p1Y"]);
-                //              player1.setVelocity(output["p1VX"], output["p1VY"]);player1.changePos(output["p1X"], output["p1Y"]);
-                //                              player1.setVelocity(output["p1VX"], output["p1VY"]);send input to server
 				hammer1.setAnimation(getCurrentAnimation(hammer1, true));
 				//hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
 				hammer1.update(frameTime);
@@ -705,9 +699,10 @@ int main(int argc, char *argv[])
                 if(serverMessage.msg != NULL)
                 {
                     std::string serverString(serverMessage.msg);
-                    //auto serverJson = json::parse(serverString);
+                    auto serverJson = json::parse(serverString);
+                    player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
+                    player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
                     std::cout << "received packet: " << serverMessage.msg << std::endl;
-                    serverString.clear();
                     
                 }
                 else
@@ -715,9 +710,7 @@ int main(int argc, char *argv[])
                     printf("didnt receive anything.\n");
                 }
 
-	            //player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
-                //player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
-			}
+	        }
 			else {
 
 
