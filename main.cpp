@@ -111,7 +111,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 	State previousState = static_cast<State>(sprite.getPrevState());
 	// if a key was pressed set the correct animation and move correctly
 
-	if (sprite.getTeam() != 0) {
 		if (currentState == die) {
 			return currentState;
 		}
@@ -199,7 +198,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 			else
 				currentState = idleRight;
 		}
-	}
 	
 	return currentState;
 }
@@ -560,6 +558,8 @@ int main(int argc, char *argv[])
         //TODO: error debug
     }
 
+	playerSideLeft = (serverMessage.msg == 1);
+
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
 	floorBox.setPosition(0, screenDimensions.y - FLOOR_HEIGHT);
@@ -603,10 +603,10 @@ int main(int argc, char *argv[])
 	setupAnimations();
 
 	// set up AnimatedSprite
-	AnimatedSprite player1(sf::seconds(1 / 25.f), 1 + playerTeamRight);
+	AnimatedSprite player1(sf::seconds(1 / 25.f), 1 + !playerSideLeft);
 	player1.changePos(screenDimensions.x/2 -300 + 600*(playerSideLeft), screenDimensions.y*2/3);
 
-	AnimatedSprite player2(sf::seconds(1 / 25.f), 1 + playerTeamRight);
+	AnimatedSprite player2(sf::seconds(1 / 25.f), 1 + !playerSideLeft);
 	player2.changePos(screenDimensions.x / 2 + 300 + 600 * (playerSideLeft), screenDimensions.y *2/3);
 
 	AnimatedSprite hammer1(sf::seconds(1 / 25.f), 0);
