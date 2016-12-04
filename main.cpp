@@ -661,9 +661,10 @@ int main(int argc, char *argv[])
                 }
 
 				player1.setState(getCurrentState(player1,p1Input));
-				printf("player state -> %i", player1.getState());
+				
 				player1.update(frameTime);
 				newVelocity = updatePlayer(player1, frameTime);
+				printf("player velocity -> %f", newVelocity.first);
 				player1.setVelocity(newVelocity.first, newVelocity.second);
 				player1.movePosition();
 				p1V = newVelocity;
