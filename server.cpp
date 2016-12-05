@@ -603,19 +603,23 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    std::string jsonString(playerMessage.msg);
+                        std::string jsonString(playerMessage.msg);
 			std::cout << "got : " << jsonString << std::endl;
                     auto jsonInput = json::parse(jsonString);
                     if(playerMessage.player == 1)
                     {
 			jsonInt = jsonInput["input"];
-					   p1Input = static_cast<Input>(jsonInt);
+			p1Input = static_cast<Input>(jsonInt);
                     }
+			else if(playerMessage.player == 2)
+			{
+				jsonInt = jsonInput["input"];
+                        	p2Input = static_cast<Input>(jsonInt);
+			}
                     else
                     {
-			jsonInt = jsonInput["input"];
-                        p2Input = static_cast<Input>(jsonInt);
-                    }
+			std::cout << "player not recognized" << std::endl;
+            		}
                 }
             
 
