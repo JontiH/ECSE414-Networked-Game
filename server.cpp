@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
 	char *ggg = ack;
     udpServer.sendPacket(TO_PLAYER_ONE, ggg);
     char ack2[] = "2";
-    //udpServer.sendPacket(TO_PLAYER_TWO, ack2);
+//    udpServer.sendPacket(TO_PLAYER_TWO, ack2);
 
 
 
@@ -618,7 +618,8 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                    //    p2Input = jsonInput["input"];
+			jsonInt = jsonInput["input"];
+                        p2Input = static_cast<Input>(jsonInt);
                     }
                 }
             
@@ -696,7 +697,7 @@ int main(int argc, char *argv[])
                 char *charOutput = &stringOutput[0];
 		if(charOutput != NULL)
 		{
-			    udpServer.sendPacket(1,charOutput);	
+			    udpServer.sendPacket(0,charOutput);	
 			std::cout << "packet sent" << std::endl;
 		}
 		else
