@@ -546,18 +546,16 @@ int main(int argc, char *argv[])
     playerSide[1] = '\0';
     if(playerSide[0] == '1')
     {
-        //TODO: set player 1
+        ps = 1;
     }
     else if(playerSide[0] == '2')
     {
-        //TODO: set player 2
+        ps = 2;
     }
     else
     {
         //TODO: error debug
     }
-
-	ps = (int)playerSide[0];
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
