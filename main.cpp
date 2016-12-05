@@ -53,9 +53,13 @@ int chuckList[2] = { 0 };
 int teamList[2] = { 0 };
 
 int victory = 0;
-bool playerSideLeft = true;
-bool playerTeamRight = true;
+int ps;
+int interpBuffer = 0;
+State interpState = idleRight;
+float interpX;
+float interpY;
 std::pair<float, float> p1V, p2V, h1V, h2V;
+
 
 
 
@@ -64,12 +68,31 @@ sf::Vector2i screenDimensions(800, 600);
 sf::RectangleShape floorBox(sf::Vector2f(screenDimensions.x, FLOOR_HEIGHT));
 sf::RectangleShape halfLine(sf::Vector2f(10, FLOOR_HEIGHT));
 
+std::pair<float, float> interpolatePosition(AnimatedSprite sprite, sf::Time frameTime) {
+	
+	std::pair<float, float> output = { sprite.getVelocityX(),sprite.getVelocityY() };
+	
+	if (interpBuffer <= 0) {
+		return output;
+	}
+	else {
+		float posX = sprite.getPosX();
+		float posY = sprite.getPosX();
 
-State interpolateState() {
-
-	return idleRight;
+		output.first = ((interpX - posX) / interpBuffer);
+		output.second = ((interpY - posY) / interpBuffer);
+		interpBuffer--;
+		return output;
+	}
 }
 
+void addInterpData(float posX, float posY){
+
+	interpX = posX;
+	interpY = posY;
+
+	interpBuffer = 2;
+}
 
 Input getCurrentInput(sf::Event event) {
 
@@ -107,14 +130,11 @@ Input getCurrentInput(sf::Event event) {
 State getCurrentState(AnimatedSprite sprite, Input input)  {
 
 	bool noKeyWasPressed = true;
-	State previousState = static_cast<State>(sprite.getCurrState());
-	State currentState;
+	State  currentState = static_cast<State>(sprite.getCurrState());
+	State previousState = static_cast<State>(sprite.getPrevState());
 	// if a key was pressed set the correct animation and move correctly
 
-	if (sprite.getTeam() == 1) {
-		if (currentState == die) {
-			return currentState;
-		}
+
 		if (input == action)
 		{
 
@@ -199,7 +219,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 			else
 				currentState = idleRight;
 		}
-	}
 	
 	return currentState;
 }
@@ -424,9 +443,11 @@ void checkCollision(AnimatedSprite player, AnimatedSprite hammer, int id) {
 
 
 		}
+		/*
 		else if (hammer.getTeam() != player.getTeam()) {
 			victory = hammer.getTeam();
 		}
+		*/
 	}
 }
 
@@ -544,8 +565,23 @@ int main(int argc, char *argv[])
 	    udpClient.connect();
         serverMessage = udpClient.recvPacket(HALF_SEC_TIMEOUT);
     }while(serverMessage.msg == NULL);
-    //here the serverMessage.msg contains either 1 or 2
-    //for player 1 or 2
+    
+    char playerSide[2] = {*serverMessage.msg};
+    playerSide[1] = '\0';
+    if(playerSide[0] == '1')
+    {
+        //TODO: set player 1
+    }
+    else if(playerSide[0] == '2')
+    {
+        //TODO: set player 2
+    }
+    else
+    {
+        //TODO: error debug
+    }
+
+	ps = (int)playerSide[0];
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
@@ -590,11 +626,11 @@ int main(int argc, char *argv[])
 	setupAnimations();
 
 	// set up AnimatedSprite
-	AnimatedSprite player1(sf::seconds(1 / 25.f), 1 + playerTeamRight);
-	player1.changePos(screenDimensions.x/2 -300 + 600*(playerSideLeft), screenDimensions.y*2/3);
+	AnimatedSprite player1(sf::seconds(1 / 25.f), 1);
+	player1.changePos(screenDimensions.x/2 -300 , screenDimensions.y*2/3);
 
-	AnimatedSprite player2(sf::seconds(1 / 25.f), 1 + playerTeamRight);
-	player2.changePos(screenDimensions.x / 2 + 300 + 600 * (playerSideLeft), screenDimensions.y *2/3);
+	AnimatedSprite player2(sf::seconds(1 / 25.f), 2);
+	player2.changePos(screenDimensions.x / 2 + 300 , screenDimensions.y *2/3);
 
 	AnimatedSprite hammer1(sf::seconds(1 / 25.f), 0);
 	hammer1.changePos(screenDimensions.x / 2 - 100, screenDimensions.y* 2/3);
@@ -620,20 +656,19 @@ int main(int argc, char *argv[])
 				window.close();
 		}
 		
-		while (updateClock.getElapsedTime().asMilliseconds() < 1000 / 60) {
+		while (updateClock.getElapsedTime().asMilliseconds() < 1000.0 / 60) {
 		}
 			updateClock.restart();
 			sf::Time frameTime = sf::milliseconds(1000/60);
 			if (victory == 0) {
 				player1.setAnimation(getCurrentAnimation(player1, false));
+				player2.setAnimation(getCurrentAnimation(player2, false));
 
-				Input p1Input = getCurrentInput(event);
+				Input playerInput = getCurrentInput(event);
 
 				json output = 
 				{
-					{"ack", ackCounter},
-					{"input" , p1Input}
-
+					{"input" , playerInput}
 				};
                 std::string outputString = output.dump();
                 char *outputChar = &outputString[0];
@@ -641,37 +676,89 @@ int main(int argc, char *argv[])
                 {
                     std::cout << "sending packet: " << outputString << std::endl;
 				    udpClient.sendPacket(TO_SERVER,outputChar);
-                    outputString.clear();
                 }
                 else
                 {
                     printf("didnt send message: msg = NULL");
-                    outputString.clear();
                 }
 
-				player1.setState(getCurrentState(player1,p1Input));
+
+				if (ps == 1) {
+					player1.setState(getCurrentState(player1, playerInput));
+					State p2State = interpState;
+					player2.setState(p2State);
+				}
+				else if (ps == 2) {
+					player2.setState(getCurrentState(player2, playerInput));
+					State p1State = interpState;
+					player1.setState(p1State);
+				}
+				else {
+					printf("ERROR OMG EVERTHING IS GOING WRONG ARRRRRGHH \n\n");
+					printf("ps is ->> %i \n", ps);
+				}
+			
+				
+				
 				player1.update(frameTime);
-				newVelocity = updatePlayer(player1, frameTime);
+
+				if (ps == 1) {
+					newVelocity = updatePlayer(player1, frameTime);
+				}
+				else if (ps == 2) {
+					newVelocity = interpolatePosition(player1, frameTime);
+				}
+				//printf("player velocity -> %f \n", newVelocity.first);
 				player1.setVelocity(newVelocity.first, newVelocity.second);
 				player1.movePosition();
 				p1V = newVelocity;
 
-				player2.setAnimation(getCurrentAnimation(player2, false));
-				State p2State = interpolateState();
-				player2.setState(p2State);
+				
 				player2.update(frameTime);
-				newVelocity = updatePlayer(player2, frameTime);
+				if (ps == 2) {
+					newVelocity = updatePlayer(player2, frameTime);
+				}
+				else if (ps == 1) {
+					newVelocity = interpolatePosition(player2, frameTime);
+				}
 				player2.setVelocity(newVelocity.first, newVelocity.second);
 				player2.movePosition();
 				p2V = newVelocity;
 
 				
 
-				hammer1.setTeam(teamList[0]);
 
-                //yer1.changePos(output["p1X"], output["p1Y"]);
-                //              player1.setVelocity(output["p1VX"], output["p1VY"]);player1.changePos(output["p1X"], output["p1Y"]);
-                //                              player1.setVelocity(output["p1VX"], output["p1VY"]);send input to server
+				//receive server's game state
+				serverMessage = udpClient.recvPacket(TIMEOUT);
+				if (serverMessage.msg != NULL)
+				{
+					std::string serverString(serverMessage.msg);
+					auto serverJson = json::parse(serverString);
+
+					if (ps == 1) {
+						player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
+						player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
+						interpState = serverJson["p2State"];
+						addInterpData(serverJson["p2X"], serverJson["p2Y"]);
+					}
+					else if (ps == 2) {
+						player2.changePos(serverJson["p2X"], serverJson["p2Y"]);
+						player2.setVelocity(serverJson["p2VX"], serverJson["p2VY"]);
+						interpState = serverJson["p1State"];
+						addInterpData(serverJson["p1X"], serverJson["p1Y"]);
+					}
+					victory = serverJson["victory"];
+					//
+					std::cout << "received packet: " << serverMessage.msg << std::endl;
+
+				}
+				else
+				{
+					printf("didnt receive anything.\n");
+				}
+
+
+				hammer1.setTeam(teamList[0]);
 				hammer1.setAnimation(getCurrentAnimation(hammer1, true));
 				//hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
 				hammer1.update(frameTime);
@@ -700,30 +787,15 @@ int main(int argc, char *argv[])
 				checkCollision(player1, hammer2,2);
 				checkCollision(player2, hammer2,2);
 
-                //receive server's game state
-				serverMessage = udpClient.recvPacket(TIMEOUT);
-                if(serverMessage.msg != NULL)
-                {
-                    std::string serverString(serverMessage.msg);
-                    //auto serverJson = json::parse(serverString);
-                    std::cout << "received packet: " << serverMessage.msg << std::endl;
-                    serverString.clear();
-                    
-                }
-                else
-                {
-                    printf("didnt receive anything.\n");
-                }
+               
 
-	            //player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
-                //player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
-			}
+	        }
 			else {
 
 
 				// select the font
 				endText.setFont(font); // font is a sf::Font						// set the string to display
-				if (victory == 1) {
+				if (victory == ps) {
 					endText.setString("YOU WIN!!");
 
 				}

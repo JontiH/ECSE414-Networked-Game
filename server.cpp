@@ -72,10 +72,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 	State currentState;
 	// if a key was pressed set the correct animation and move correctly
 
-	if (sprite.getTeam() == 1) {
-		if (currentState == die) {
-			return currentState;
-		}
 		if (input == action)
 		{
 
@@ -160,7 +156,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 			else
 				currentState = idleRight;
 		}
-	}
 	
 	return currentState;
 }
@@ -614,7 +609,7 @@ int main(int argc, char *argv[])
                     if(playerMessage.player == 1)
                     {
 			jsonInt = jsonInput["input"];
-                        p1Input = static_cast<Input>(jsonInt);
+					   p1Input = static_cast<Input>(jsonInt);
                     }
                     else
                     {
@@ -625,8 +620,8 @@ int main(int argc, char *argv[])
             
 
 				player1.setAnimation(getCurrentAnimation(player1, false));
-
-				player1.setState(getCurrentState(player1,p1Input));
+				State p1State = getCurrentState(player1, p1Input);
+				player1.setState(p1State);
 				player1.update(frameTime);
 				newVelocity = updatePlayer(player1, frameTime);
 				player1.setVelocity(newVelocity.first, newVelocity.second);
@@ -634,7 +629,8 @@ int main(int argc, char *argv[])
 				p1V = newVelocity;
 
 				player2.setAnimation(getCurrentAnimation(player2, false));
-				player2.setState(getCurrentState(player2,p2Input));
+				State p2State = getCurrentState(player2, p2Input);
+				player2.setState(p1State);
 				player2.update(frameTime);
 				newVelocity = updatePlayer(player2, frameTime);
 				player2.setVelocity(newVelocity.first, newVelocity.second);
@@ -691,7 +687,10 @@ int main(int argc, char *argv[])
                     {"p1VY", p1V.second},
                     {"p2VY", p2V.second},
                     {"h1VY", h1V.second},
-                    {"h2VY", h2V.second}
+                    {"h2VY", h2V.second},
+					{"victory", victory},
+					{ "p1State", p1State},
+					{"p2State", p2State}
                 };
                 std::string stringOutput = output.dump();
                 char *charOutput = &stringOutput[0];
