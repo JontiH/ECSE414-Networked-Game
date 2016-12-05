@@ -570,18 +570,18 @@ int main(int argc, char *argv[])
     playerSide[1] = '\0';
     if(playerSide[0] == '1')
     {
-        //TODO: set player 1
+		ps = 1;
     }
     else if(playerSide[0] == '2')
     {
-        //TODO: set player 2
+		ps = 2;
     }
     else
     {
         //TODO: error debug
     }
 
-	ps = (int)playerSide[0];
+	
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
@@ -738,13 +738,13 @@ int main(int argc, char *argv[])
 					if (ps == 1) {
 						player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
 						player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
-						interpState = serverJson["p2State"];
+						interpState = static_cast<State>(serverJson["p2State"]);
 						addInterpData(serverJson["p2X"], serverJson["p2Y"]);
 					}
 					else if (ps == 2) {
 						player2.changePos(serverJson["p2X"], serverJson["p2Y"]);
 						player2.setVelocity(serverJson["p2VX"], serverJson["p2VY"]);
-						interpState = serverJson["p1State"];
+						interpState = static_cast<State>(serverJson["p1State"]);
 						addInterpData(serverJson["p1X"], serverJson["p1Y"]);
 					}
 					victory = serverJson["victory"];

@@ -689,8 +689,8 @@ int main(int argc, char *argv[])
                     {"h1VY", h1V.second},
                     {"h2VY", h2V.second},
 					{"victory", victory},
-					{ "p1State", p1State},
-					{"p2State", p2State}
+					{ "p1State", (int)p1State},
+					{"p2State", (int)p2State}
                 };
                 std::string stringOutput = output.dump();
                 char *charOutput = &stringOutput[0];
