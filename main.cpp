@@ -570,18 +570,16 @@ int main(int argc, char *argv[])
     playerSide[1] = '\0';
     if(playerSide[0] == '1')
     {
-		ps = 1;
+        ps = 1;
     }
     else if(playerSide[0] == '2')
     {
-		ps = 2;
+        ps = 2;
     }
     else
     {
         //TODO: error debug
     }
-
-	
 
 	// setup window
 	floorBox.setFillColor(sf::Color(100, 250, 50));
@@ -643,6 +641,7 @@ int main(int argc, char *argv[])
 
 	sf::Clock updateClock;
 	int ackCounter = 0;
+    int jsonInt = 0;
 
 	while (window.isOpen())
 	{
@@ -729,6 +728,7 @@ int main(int argc, char *argv[])
 
 
 				//receive server's game state
+
 				serverMessage = udpClient.recvPacket(TIMEOUT);
 				if (serverMessage.msg != NULL)
 				{
@@ -738,17 +738,19 @@ int main(int argc, char *argv[])
 					if (ps == 1) {
 						player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
 						player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
-						interpState = static_cast<State>(serverJson["p2State"]);
+                        jsonInt = serverJson["p2State"];
+						interpState = static_cast<State>(jsonInt);
 						addInterpData(serverJson["p2X"], serverJson["p2Y"]);
 					}
 					else if (ps == 2) {
 						player2.changePos(serverJson["p2X"], serverJson["p2Y"]);
 						player2.setVelocity(serverJson["p2VX"], serverJson["p2VY"]);
-						interpState = static_cast<State>(serverJson["p1State"]);
+                        jsonInt = serverJson["p1State"];
+						interpState = static_cast<State>(jsonInt);
 						addInterpData(serverJson["p1X"], serverJson["p1Y"]);
 					}
 					victory = serverJson["victory"];
-					//
+					
 					std::cout << "received packet: " << serverMessage.msg << std::endl;
 
 				}
