@@ -64,12 +64,11 @@ sf::Vector2i screenDimensions(800, 600);
 sf::RectangleShape floorBox(sf::Vector2f(screenDimensions.x, FLOOR_HEIGHT));
 sf::RectangleShape halfLine(sf::Vector2f(10, FLOOR_HEIGHT));
 
-
+//based on input, se state correctly
 State getCurrentState(AnimatedSprite sprite, Input input)  {
 
 	State previousState = static_cast<State>(sprite.getPrevState());
 	State currentState = static_cast<State>(sprite.getCurrState());;
-	// if a key was pressed set the correct animation and move correctly
 
 		if (input == action)
 		{
@@ -153,6 +152,7 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 	
 	return currentState;
 }
+//set the correct animation of the sprite based on state
 const Animation* getCurrentAnimation(AnimatedSprite sprite,bool isHammer) {
 	const Animation* tmp(NULL);
 
@@ -183,7 +183,7 @@ const Animation* getCurrentAnimation(AnimatedSprite sprite,bool isHammer) {
 	return tmp;
 
 }
-
+//here we take the spritesheet and section parts off into animations
 void setupAnimations() {
 	s = sf::Sprite(texture, sf::IntRect(231 + 18, 62, -18, 32));
 	s.scale(scalingFactor, scalingFactor);
@@ -271,6 +271,7 @@ void setupAnimations() {
 	s.scale(scalingFactor, scalingFactor);
 	hammerIdleRight.addFrame(s);
 }
+//given a sprite and a time elapsed, output the correct  velocity in x and y
 std::pair<float, float> updatePlayer(AnimatedSprite  sprite, sf::Time frameTime) {
 
 	float fr = frameTime.asSeconds();
@@ -362,6 +363,7 @@ x = 0;
 
 	return std::pair<float, float>(x*fr, y*fr);
 }
+//this checks collisions between hammers and players. If a correct collision, victory is set to the correct team
 void checkCollision(AnimatedSprite player, AnimatedSprite hammer, int id) {
 
 
@@ -380,7 +382,7 @@ void checkCollision(AnimatedSprite player, AnimatedSprite hammer, int id) {
 	}
 }
 
-
+//given a hammer and a time elapsed, output the correct  velocity in x and y
 std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, int id) {
 
 	float fr = frameTime.asSeconds();
@@ -555,6 +557,7 @@ int main(int argc, char *argv[])
     Input p2Input = none;
 	int jsonInt = 0;
 
+	//this is the loop
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -567,6 +570,7 @@ int main(int argc, char *argv[])
 				window.close();
 		}
 		
+		// set tick rate to 60hz
 		while (updateClock.getElapsedTime().asMilliseconds() < 1000 / 60) {
 		}
 			updateClock.restart();
@@ -582,6 +586,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
+					//collect input from clients
                     std::string jsonString(playerMessage.msg);
 			        std::cout << "got : " << jsonString << std::endl;
                     auto jsonInput = json::parse(jsonString);
@@ -601,7 +606,7 @@ int main(int argc, char *argv[])
             		}
                 }
             
-
+				//update game
 				player1.setAnimation(getCurrentAnimation(player1, false));
 				State p1State = getCurrentState(player1, p1Input);
 				player1.setState(p1State);

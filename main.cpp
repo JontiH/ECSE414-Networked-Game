@@ -68,6 +68,8 @@ sf::Vector2i screenDimensions(800, 600);
 sf::RectangleShape floorBox(sf::Vector2f(screenDimensions.x, FLOOR_HEIGHT));
 sf::RectangleShape halfLine(sf::Vector2f(10, FLOOR_HEIGHT));
 
+// given a position interpBuffer ticks away, interpolate the velocity such that the 
+// sprites position interpBuffer ticks from now will be equal to interpX,interpY
 std::pair<float, float> interpolatePosition(AnimatedSprite sprite, sf::Time frameTime) {
 	
 	std::pair<float, float> output = { sprite.getVelocityX(),sprite.getVelocityY() };
@@ -85,7 +87,7 @@ std::pair<float, float> interpolatePosition(AnimatedSprite sprite, sf::Time fram
 		return output;
 	}
 }
-
+//set interpolation data
 void addInterpData(float posX, float posY){
 
 	interpX = posX;
@@ -93,7 +95,7 @@ void addInterpData(float posX, float posY){
 
 	interpBuffer = 2;
 }
-
+//get input from keypresses
 Input getCurrentInput(sf::Event event) {
 
 	Input currInput = none;
@@ -126,12 +128,11 @@ Input getCurrentInput(sf::Event event) {
 
 	return currInput;
 }
-
+//set state based on input
 State getCurrentState(AnimatedSprite sprite, Input input)  {
 
 	State  currentState = static_cast<State>(sprite.getCurrState());
 	State previousState = static_cast<State>(sprite.getPrevState());
-	// if a key was pressed set the correct animation and move correctly
 
 
 		if (input == action)
@@ -202,7 +203,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 
 		}
 
-		// if no key was pressed stop the animation
 		else if (input == none)
 		{
 
@@ -246,6 +246,7 @@ const Animation* getCurrentAnimation(AnimatedSprite sprite,bool isHammer) {
 	return tmp;
 
 }
+//here we take the spritesheet and section parts off into animations
 
 void setupAnimations() {
 	s = sf::Sprite(texture, sf::IntRect(231 + 18, 62, -18, 32));
@@ -334,6 +335,7 @@ void setupAnimations() {
 	s.scale(scalingFactor, scalingFactor);
 	hammerIdleRight.addFrame(s);
 }
+//given a player and a time elapsed, output the correct  velocity in x and y
 std::pair<float, float> updatePlayer(AnimatedSprite  sprite, sf::Time frameTime) {
 
 	float fr = frameTime.asSeconds();
@@ -425,6 +427,8 @@ x = 0;
 
 	return std::pair<float, float>(x*fr, y*fr);
 }
+//this checks collisions between hammers and players. we don't se victory if there is a collision because 
+//the final say is with the server not the player
 void checkCollision(AnimatedSprite player, AnimatedSprite hammer, int id) {
 
 
@@ -445,7 +449,7 @@ void checkCollision(AnimatedSprite player, AnimatedSprite hammer, int id) {
 	}
 }
 
-
+//given a hammer and a time elapsed, output the correct  velocity in x and y
 std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, int id) {
 
 	float fr = frameTime.asSeconds();
@@ -561,6 +565,8 @@ int main(int argc, char *argv[])
     
     char playerSide[2] = {*serverMessage.msg};
     playerSide[1] = '\0';
+
+	//set your player's tea,
     if(playerSide[0] == '1')
     {
         ps = 1;
@@ -606,8 +612,7 @@ int main(int argc, char *argv[])
 	sideText.setFillColor(sf::Color(255, 0, 0));
 	// set the text style
 	sideText.setStyle(sf::Text::Bold);
-
-	sideText.setPosition(screenDimensions.x / 6, screenDimensions.y * 7 / 8);
+	sideText.setPosition(screenDimensions.x + (ps == 2)*5 / 6, screenDimensions.y * 7 / 8);
 
 
 
@@ -634,7 +639,7 @@ int main(int argc, char *argv[])
 
 	sf::Clock updateClock;
     int jsonInt = 0;
-
+	//game loop
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -646,15 +651,16 @@ int main(int argc, char *argv[])
 			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
 				window.close();
 		}
-		
+		// set tick rate to 60hz
 		while (updateClock.getElapsedTime().asMilliseconds() < 1000.0 / 60) {
 		}
 			updateClock.restart();
 			sf::Time frameTime = sf::milliseconds(1000/60);
+			//while nobody has won
 			if (victory == 0) {
 				player1.setAnimation(getCurrentAnimation(player1, false));
 				player2.setAnimation(getCurrentAnimation(player2, false));
-
+				//get input and send
 				Input playerInput = getCurrentInput(event);
 
 				json output = 
@@ -673,7 +679,7 @@ int main(int argc, char *argv[])
                     printf("didnt send message: msg = NULL");
                 }
 
-
+				//set your state, interpolate their state
 				if (ps == 1) {
 					player1.setState(getCurrentState(player1, playerInput));
 					State p2State = interpState;
@@ -689,7 +695,7 @@ int main(int argc, char *argv[])
 					printf("ps is ->> %i \n", ps);
 				}
 			
-				
+				//move your player, then interpolate the other player
 				
 				player1.update(frameTime);
 
@@ -699,7 +705,7 @@ int main(int argc, char *argv[])
 				else if (ps == 2) {
 					newVelocity = interpolatePosition(player1, frameTime);
 				}
-				//printf("player velocity -> %f \n", newVelocity.first);
+
 				player1.setVelocity(newVelocity.first, newVelocity.second);
 				player1.movePosition();
 				p1V = newVelocity;
@@ -731,14 +737,14 @@ int main(int argc, char *argv[])
 						player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
 						player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
                         jsonInt = serverJson["p2State"];
-						interpState = static_cast<State>(jsonInt);
+						//interpState = static_cast<State>(jsonInt);
 						addInterpData(serverJson["p2X"], serverJson["p2Y"]);
 					}
 					else if (ps == 2) {
 						player2.changePos(serverJson["p2X"], serverJson["p2Y"]);
 						player2.setVelocity(serverJson["p2VX"], serverJson["p2VY"]);
                         jsonInt = serverJson["p1State"];
-						interpState = static_cast<State>(jsonInt);
+						//interpState = static_cast<State>(jsonInt);
 						addInterpData(serverJson["p1X"], serverJson["p1Y"]);
 					}
 					victory = serverJson["victory"];
@@ -812,12 +818,6 @@ int main(int argc, char *argv[])
 
 			// draw
 			window.clear();
-
-
-
-
-
-			// inside the main loop, between window.clear() and window.display()
 
 			window.draw(player1);
 			window.draw(player2);
