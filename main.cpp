@@ -737,14 +737,14 @@ int main(int argc, char *argv[])
 						player1.changePos(serverJson["p1X"], serverJson["p1Y"]);
 						player1.setVelocity(serverJson["p1VX"], serverJson["p1VY"]);
                         jsonInt = serverJson["p2State"];
-						//interpState = static_cast<State>(jsonInt);
+						interpState = static_cast<State>(jsonInt);
 						addInterpData(serverJson["p2X"], serverJson["p2Y"]);
 					}
 					else if (ps == 2) {
 						player2.changePos(serverJson["p2X"], serverJson["p2Y"]);
 						player2.setVelocity(serverJson["p2VX"], serverJson["p2VY"]);
                         jsonInt = serverJson["p1State"];
-						//interpState = static_cast<State>(jsonInt);
+						interpState = static_cast<State>(jsonInt);
 						addInterpData(serverJson["p1X"], serverJson["p1Y"]);
 					}
 					victory = serverJson["victory"];
