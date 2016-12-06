@@ -67,9 +67,8 @@ sf::RectangleShape halfLine(sf::Vector2f(10, FLOOR_HEIGHT));
 
 State getCurrentState(AnimatedSprite sprite, Input input)  {
 
-	bool noKeyWasPressed = true;
-	State previousState = static_cast<State>(sprite.getCurrState());
-	State currentState;
+	State previousState = static_cast<State>(sprite.getPrevState());
+	State currentState = static_cast<State>(sprite.getCurrState());;
 	// if a key was pressed set the correct animation and move correctly
 
 		if (input == action)
@@ -94,7 +93,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 				}
 			}
 
-			noKeyWasPressed = false;
 		}
 
 		else if (input == down)
@@ -107,7 +105,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 				currentState = crouchRight;
 			}
 
-			noKeyWasPressed = false;
 		}
 		else if (input == left)
 		{
@@ -120,7 +117,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 			else
 				currentState = walkLeft;
 
-			noKeyWasPressed = false;
 		}
 		else if (input == right)
 		{
@@ -132,7 +128,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 			}
 			else
 				currentState = walkRight;
-			noKeyWasPressed = false;
 		}
 		else if (input == up)
 		{
@@ -141,7 +136,6 @@ State getCurrentState(AnimatedSprite sprite, Input input)  {
 			}
 			else
 				currentState = jumpLeft;
-			noKeyWasPressed = false;
 
 		}
 
@@ -396,8 +390,6 @@ std::pair<float, float> updateHammer(AnimatedSprite sprite, sf::Time frameTime, 
 	float throwingVelocity = 500;
 	float angle = -30;
 	std::pair<float, float> outputPair;
-
-	State current = static_cast<State>(sprite.getCurrState());
 
 	y += gravity;
 	int team = teamList[id - 1];
