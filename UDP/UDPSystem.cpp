@@ -1,10 +1,18 @@
 #include "UDPSystem.hpp"
 
+/*
+ *  UDPSystem constructor.
+ */
 UDPSystem::UDPSystem(char *destIP, char *portNumber) : 
     m_destIP(destIP), m_portNumber(portNumber)
 {
 }
 
+/*
+ *  initialSetup() is used to set some variable prior to a call to getInfo()
+ *  @param none
+ *  @return void
+ */
 void UDPSystem::initialSetup()
 {
     memset(&hints, 0, sizeof hints);
@@ -13,6 +21,14 @@ void UDPSystem::initialSetup()
     hints.ai_flags = AI_PASSIVE;
 }
 
+/*
+ *  getInfo() create a structure that will then be used to create a socket.
+ *  The structure is based on an IP (NULL), a port number and a similar struct
+ *  (hints) which contains criteria for creating a socket. The resulting struct
+ *  is stored in receivingInfo. The function return 0 on success or 1 on error.
+ *  @param none
+ *  @return int
+ */
 int UDPSystem::getInfo()
 {
     if((receivingValue = getaddrinfo(NULL, m_portNumber, &hints, &receivingInfo)) != 0)
@@ -23,6 +39,17 @@ int UDPSystem::getInfo()
     return 0;
 }
 
+/*
+ *  createSocket() creates and bind a socket to a port based on the info
+ *  stored in receivingInfo. It also sets the socket to O_NONBLOCK to 
+ *  prevent it from blocking (when calling recvfrom and sendto on it)
+ *  and set its memory address to SO_REUSEADDR to allows us to 
+ *  quickly rebinds a new socket in case of failure. The function return
+ *  0 on success or 1 on error.
+ *  @param none
+ *  @return int
+ *
+ */
 int UDPSystem::createSocket()
 {
     int option = 1;
@@ -53,6 +80,11 @@ int UDPSystem::createSocket()
     return 0;
 }
 
+/*
+ *  init() is a public function that prepares the UDPSystem object before uses.
+ *  @param none
+ *  @return void
+ */
 void UDPSystem::init()
 {
     UDPSystem::initialSetup();
@@ -69,6 +101,17 @@ void UDPSystem::init()
     clientIP[1][0] = '\0';
 }
 
+/*
+ *  recvPacket() is a public function used to read a packet from the socket's queue.
+ *  It verifies if the socket is ready to read. Then attempt to get the 
+ *  first packet from it. Then it gets the packet's source IP and Port from
+ *  the udp "pseudo header" and store the information if its for further
+ *  sendPacket() calls if necessary (i.e. if not already stored). It takes
+ *  a timeout value as parameter in microseconds and return a struct
+ *  containing the packet's message and player id.
+ *  @param int timeOutValue
+ *  @return struct messageContainer
+ */
 messageContainer UDPSystem::recvPacket(int timeOutValue)
 {
     playerMessage.player = 0;
@@ -142,6 +185,13 @@ messageContainer UDPSystem::recvPacket(int timeOutValue)
     return playerMessage;
 }
 
+/*
+ *  sendPacket() is a public function used to send a message to the previously stored client(s).
+ *  It first checks to which client to send to based on the parameter 'player'.
+ *  Then is verifies if the socket is ready to read and if so it sends the msg.
+ *  @param int player, char *msg
+ *  @return void
+ */
 void UDPSystem::sendPacket(int player, char *msg)
 {    
     FD_ZERO(&writefds);
@@ -181,6 +231,13 @@ void UDPSystem::sendPacket(int player, char *msg)
     }
 }
 
+/*
+ *  connect() is a public function used by the clients during the udp 'handshake' to send a message
+ *  to the server without having to rely on stored information. It also creates 
+ *  the necessary structure by hands instead of using getInfo() or getaddrinfo().
+ *  @param none
+ *  @return void
+ */
 void UDPSystem::connect()
 {
     char connectValue[] = "start";
@@ -198,6 +255,12 @@ void UDPSystem::connect()
     }
 }
 
+/*
+ *  getClients() is a public helper function used to retrieve the number of 
+ *  stored clients. It returns the number of non-NULL IP stored.
+ *  @param none
+ *  @return int
+ */
 int UDPSystem::getClients()
 {
     if(clientIP[0][0] != '\0')
@@ -211,6 +274,12 @@ int UDPSystem::getClients()
     return 0;
 }
 
+/*
+ *  closeSocket() is a public function used to close the socket create 
+ *  in the UDPSystem object. It ends any further connections.
+ *  @param none
+ *  @return void
+ */
 void UDPSystem::closeSocket()
 {
     close(receivingSocket);
