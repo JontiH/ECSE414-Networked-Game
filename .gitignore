@@ -3,3 +3,5 @@ a.out
 game
 *.gch
 test*
+client
+server
