@@ -10,10 +10,10 @@
 #include "json.hpp"  
 using json = nlohmann::json;
 
-
 #include "./UDP/UDPSystem.hpp"
 
 #define TIMEOUT 10000 //timeout value for recvPacket()
+
 //TO_* used as param. for sendPacket()
 #define TO_BOTH_PLAYER 0 
 #define TO_PLAYER_ONE 1
@@ -493,9 +493,9 @@ int main(int argc, char *argv[])
     messageContainer playerMessage;
 
     //udp handshake
-    while(udpServer.getClients() != 1)
+    while(udpServer.getClients() != 2)
     {
-	printf("waiting for connections...\n");
+    	printf("waiting for connections...\n");
         playerMessage = udpServer.recvPacket(TIMEOUT);
     }
     //Server tells both clients which player they are
@@ -503,16 +503,12 @@ int main(int argc, char *argv[])
 	char *ggg = ack;
     udpServer.sendPacket(TO_PLAYER_ONE, ggg);
     char ack2[] = "2";
-//    udpServer.sendPacket(TO_PLAYER_TWO, ack2);
-
-
+    udpServer.sendPacket(TO_PLAYER_TWO, ack2);
 
 
 	// setup window
 	
-//	floorBox.setFillColor(sf::Color(100, 250, 50));
 	floorBox.setPosition(0, screenDimensions.y - FLOOR_HEIGHT);
-//	halfLine.setFillColor(sf::Color(250, 0, 0));
 	halfLine.setPosition(screenDimensions.x/2, screenDimensions.y - FLOOR_HEIGHT);
 
 	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Animations!");
@@ -538,15 +534,10 @@ int main(int argc, char *argv[])
 	sideText.setString("Your Side");
 	// set the character size
 	sideText.setCharacterSize(24); // in pixels, not point
-//	sideText.setFillColor(sf::Color(255, 0, 0));
 	// set the text style
 	sideText.setStyle(sf::Text::Bold);
 
 	sideText.setPosition(screenDimensions.x / 6, screenDimensions.y * 7 / 8);
-
-
-
-
 
 	// set up the animations for all four directions (set spritesheet and push frames)
 	setupAnimations();
@@ -566,15 +557,11 @@ int main(int argc, char *argv[])
 
 	sf::Clock frameClock;
 	sf::Text endText;
-
 	sf::Clock updateClock;
-
 
     Input p1Input = none;
     Input p2Input = none;
 	int jsonInt = 0;
-
-
 
 	while (window.isOpen())
 	{
@@ -598,27 +585,27 @@ int main(int argc, char *argv[])
                 if((strcmp(playerMessage.msg,CONNECT_VALUE) == 0) || playerMessage.msg == NULL)
                 {
                     //if msg is NULL or a connect() msg then skip this loop
-			std::cout << "packet NULL" << std::endl;
+			        std::cout << "packet NULL" << std::endl;
                     continue;
                 }
                 else
                 {
-                        std::string jsonString(playerMessage.msg);
-			std::cout << "got : " << jsonString << std::endl;
+                    std::string jsonString(playerMessage.msg);
+			        std::cout << "got : " << jsonString << std::endl;
                     auto jsonInput = json::parse(jsonString);
                     if(playerMessage.player == 1)
                     {
-			jsonInt = jsonInput["input"];
-			p1Input = static_cast<Input>(jsonInt);
+			            jsonInt = jsonInput["input"];
+			            p1Input = static_cast<Input>(jsonInt);
                     }
-			else if(playerMessage.player == 2)
-			{
-				jsonInt = jsonInput["input"];
-                        	p2Input = static_cast<Input>(jsonInt);
-			}
+			        else if(playerMessage.player == 2)
+			        {
+			        	jsonInt = jsonInput["input"];
+                        p2Input = static_cast<Input>(jsonInt);
+			        }
                     else
                     {
-			std::cout << "player not recognized" << std::endl;
+			            std::cout << "player not recognized" << std::endl;
             		}
                 }
             
@@ -640,15 +627,11 @@ int main(int argc, char *argv[])
 				player2.setVelocity(newVelocity.first, newVelocity.second);
 				player2.movePosition();
 				p2V = newVelocity;
-
                 
 				hammer1.setTeam(teamList[0]);
-
 				hammer1.setAnimation(getCurrentAnimation(hammer1, true));
-				//hammer1.setState(getCurrentState(hammer1, static_cast<State>(hammer1.getCurrState()), event));
 				hammer1.update(frameTime);
 				newVelocity = updateHammer(hammer1, frameTime,1);
-
 				hammer1.setVelocity(newVelocity.first, newVelocity.second);
 				hammer1.movePosition();
                 h1V = newVelocity;
@@ -656,15 +639,10 @@ int main(int argc, char *argv[])
 				checkCollision(player1, hammer1,1);
 				checkCollision(player2, hammer1,1);
 
-
-
-
 				hammer2.setTeam(teamList[1]);
 				hammer2.setAnimation(getCurrentAnimation(hammer2, true));
-				//hammer2.setState(getCurrentState(hammer2, static_cast<State>(hammer2.getCurrState()), event));
 				hammer2.update(frameTime);
 				newVelocity = updateHammer(hammer2, frameTime,2);
-
 				hammer2.setVelocity(newVelocity.first, newVelocity.second);
 				hammer2.movePosition();
                 h2V = newVelocity;
@@ -693,26 +671,27 @@ int main(int argc, char *argv[])
                     {"h1VY", h1V.second},
                     {"h2VY", h2V.second},
 					{"victory", victory},
-					{ "p1State", (int)p1State},
+					{"p1State", (int)p1State},
 					{"p2State", (int)p2State}
                 };
                 std::string stringOutput = output.dump();
                 char *charOutput = &stringOutput[0];
-		if(charOutput != NULL)
-		{
-			    udpServer.sendPacket(0,charOutput);	
-			std::cout << "packet sent" << std::endl;
-		}
-		else
-		{
-			std::cout << "not sent" << std::endl;
-		}
+		        if(charOutput != NULL)
+		        {
+		        	udpServer.sendPacket(TO_BOTH_PLAYER,charOutput);	
+		        	std::cout << "packet sent" << std::endl;
+		        }
+		        else
+		        {
+		        	std::cout << "not sent" << std::endl;
+		        }
 			}
-			else {
+			else 
+            {
 
 
 				// select the font
-				//endText.setFont(font); // font is a sf::Font						// set the string to display
+				//endText.setFont(font); // font is a sf::Font	// set the string to display
 				if (victory == 1) {
 					endText.setString("YOU WIN!!");
 
@@ -722,7 +701,6 @@ int main(int argc, char *argv[])
 				}
 				// set the character size
 				endText.setCharacterSize(100); // in pixels, not point
-//				endText.setFillColor(sf::Color(255, 0, 0));
 				// set the text style
 				endText.setStyle(sf::Text::Bold);
 
@@ -730,19 +708,9 @@ int main(int argc, char *argv[])
 
 			}
 
-			//printf("%i", carryList[2]);
-
-
-
 			// draw
 			window.clear();
-
-
-
-
-
 			// inside the main loop, between window.clear() and window.display()
-
 			window.draw(player1);
 			window.draw(player2);
 			window.draw(hammer1);
@@ -757,9 +725,6 @@ int main(int argc, char *argv[])
 			window.display();
 		}
 		
-
-		
-
 	return 0;
 }
 
